@@ -11,7 +11,7 @@ from select import select
 from threading import Semaphore, Thread
 from typing import Callable
 from zeroconf import ServiceInfo, Zeroconf
-from circum.utils.network import _advertise_server, _open_server, _get_interface_ip
+from circum.utils.network import _advertise_server, _open_server, _get_interface_ip, _set_keepalive
 
 # endpoint types
 from circum.trackers.simulator import simulator
@@ -56,6 +56,7 @@ def _run_server(server_socket: socket.socket, reader, tracker_args):
         ready, _, _ = select([server_socket], [], [], 1)
         if ready:
             conn, _ = server_socket.accept()
+            _set_keepalive(conn)
             semaphore.acquire()
             clients.append(conn)
             semaphore.release()

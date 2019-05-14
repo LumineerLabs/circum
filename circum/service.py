@@ -7,7 +7,7 @@ import struct
 
 import numpy as np
 
-from circum.utils.network import _advertise_server, _open_server
+from circum.utils.network import _advertise_server, _open_server, _set_keepalive
 from circum.utils.state.tracking import TrackedObject
 from circum.utils.state.simple import SimpleTracker
 from ipaddress import IPv4Address
@@ -33,6 +33,7 @@ class MyListener:
         if name not in self.sockets.keys():
             try:
                 endpoint_socket = socket.socket((str(IPv4Address(info.address), info.port)))
+                _set_keepalive(endpoint_socket)
                 self.sockets[name] = endpoint_socket
             except Exception:
                 pass
@@ -81,6 +82,7 @@ def _run_service(server_socket: socket.socket, listener: ServiceBrowser):
         for ready_socket in ready:
             if ready_socket == server_socket:
                 conn, _ = server_socket.accept()
+                _set_keepalive(conn)
                 semaphore.acquire()
                 clients.append(conn)
                 semaphore.release()
