@@ -8,6 +8,11 @@ setup(
         'zeroconf',
         'click'
         ],
+    entry_points='''
+        [console_scripts]
+        circum-endpoint=circum.endpoint:cli
+        circum-service=circum.service:cli
+    ''',
     author="Lane Haury",
     author_email="lane@lumineerlabs.com",
     description="",
