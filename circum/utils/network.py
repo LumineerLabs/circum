@@ -1,9 +1,11 @@
 import socket
 import sys
 
+from zeroconf import Zeroconf, ServiceInfo
 
-def _advertise_server(name: str, type: str, ip: str, port: int):
-    desc = {}
+
+def _advertise_server(name: str, type: str, ip: str, port: int, properties=b""):
+    desc = properties
 
     service_type = "_{}._sub._circum._tcp.local.".format(type)
     service_name = "{}.{}".format(name, service_type)

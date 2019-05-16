@@ -62,13 +62,13 @@ def _run_server(server_socket: socket.socket, reader, tracker_args):
             semaphore.release()
 
 
-def _start_endpoint(name: str, interface: str, port: int, tracker, tracker_args):
+def _start_endpoint(name: str, interface: str, port: int, tracker_type: str, tracker, tracker_args):
     
     ip = _get_interface_ip(interface)
 
     server_socket = _open_server(ip, port)
 
-    zeroconf, info = _advertise_server(name, "endpoint", ip, port)
+    zeroconf, info = _advertise_server(name, "endpoint", ip, port, {"type": tracker_type})
 
     try:
         _run_server(server_socket, tracker, tracker_args)
@@ -79,8 +79,8 @@ def _start_endpoint(name: str, interface: str, port: int, tracker, tracker_args)
         zeroconf.close()
 
 
-def start_endpoint(ctx, tracker, tracker_args=None):
-    _start_endpoint(ctx.obj["name"], ctx.obj["interface"], ctx.obj["port"], tracker, tracker_args)
+def start_endpoint(ctx, tracker_type: str, tracker, tracker_args=None):
+    _start_endpoint(ctx.obj["name"], ctx.obj["interface"], ctx.obj["port"], tracker_type, tracker, tracker_args)
 
 
 @click.group()

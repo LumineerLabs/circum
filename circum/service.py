@@ -3,16 +3,21 @@
 import bson
 import click
 import logging
+import select
+import socket
 import struct
 
 import numpy as np
 
-from circum.utils.network import _advertise_server, _open_server, _set_keepalive
+from circum.utils.network import _advertise_server, _open_server, _set_keepalive, _get_interface_ip
 from circum.utils.state.tracking import TrackedObject
 from circum.utils.state.simple import SimpleTracker
 from ipaddress import IPv4Address
-from zeroconf import ServiceBrowser, Zeroconf
+from zeroconf import ServiceBrowser, Zeroconf, ServiceInfo
+from threading import Semaphore
 
+
+logger = logging.getLogger(__name__)
 
 size_fmt = "!i"
 size_data_len = struct.calcsize(size_fmt)
@@ -20,15 +25,20 @@ tracking_state = SimpleTracker()
 
 
 class MyListener:
-    def __init__(self):
+    def __init__(self, endpoints: [str]):
         self.sockets = {}
+        self.endpoints = endpoints
 
-    def remove_service(self, zeroconf, type, name):
+    def remove_service(self, zeroconf, type_, name):
         print("Endpoint %s removed" % (name,))
         sockets.pop(name).close()
 
-    def add_service(self, zeroconf, type, name):
-        info = zeroconf.get_service_info(type, name)
+    def add_service(self, zeroconf, type_, name):
+        info = zeroconf.get_service_info(type_, name)
+        if len(self.endpoints) > 0:
+            if name not in self.endpoints:
+                print("Name doesn't match skipping %s, service info: %s" % (name, info))
+                return
         print("Endpoint %s added, service info: %s" % (name, info))
         if name not in self.sockets.keys():
             try:
@@ -43,6 +53,9 @@ class MyListener:
             if s == service_socket:
                 sockets.pop(k).close()
                 return
+
+    def get_sockets(self):
+        return list(self.sockets.values())
 
 
 def _update(update: {}, clients: [socket.socket]):
@@ -78,7 +91,7 @@ def _run_service(server_socket: socket.socket, listener: ServiceBrowser):
         endpoint_sockets = listener.get_sockets()
 
         # service the sockets
-        ready, _, excepted = select([server_socket] + endpoint_sockets, [], [], 1)
+        ready, _, excepted = select.select([server_socket] + endpoint_sockets, [], [], 1)
         for ready_socket in ready:
             if ready_socket == server_socket:
                 conn, _ = server_socket.accept()
@@ -97,7 +110,7 @@ def _run_service(server_socket: socket.socket, listener: ServiceBrowser):
                 listener.remove(excepted_socket)
 
 
-def _start_endpoint(name: str, interface: str, port: int, listener: ServiceBrowser):
+def _start_service(name: str, interface: str, port: int, listener: ServiceBrowser):
     
     ip = _get_interface_ip(interface)
 
@@ -114,29 +127,40 @@ def _start_endpoint(name: str, interface: str, port: int, listener: ServiceBrows
         zeroconf.close()
 
 
+@click.command()
 @click.option('--name',
+              '-n',
               required=True,
               help='The service name')
 @click.option('--interface',
+              '-i',
               required=False,
               default=None,
               help='The interface to bind to.')
 @click.option('--port',
+              '-p',
               required=False,
               default=8300,
               type=int,
               help='The port to bind to.')
-def cli(name: str, interface: str, port: int):
+@click.option('--endpoint',
+              '-e',
+              multiple=True,
+              type=str,
+              help='Names of endpoints to connect to. Can be specified multiple times. ' + 
+                   'If no endpoints are specified, all available endpoints will be used.')
+def cli(name: str, interface: str, port: int, endpoint: [str]):
     zeroconf = Zeroconf()
-    listener = MyListener()
-    browser = ServiceBrowser(zeroconf, "_endpoint._sub._circum._tcp.local.", listener)
+    endpoint_type = "_endpoint._sub._circum._tcp.local."
+    listener = MyListener([name + "." + endpoint_type for name in endpoint])
+    browser = ServiceBrowser(zeroconf, endpoint_type, listener)
     try:
-        _start_endpoint(name, interface, port, listener)
+        _start_service(name, interface, port, listener)
     finally:
         zeroconf.close()
 
 
 if __name__ == "__main__":
     logging.basicConfig(level="DEBUG")
-    logger = logging.getLogger("circum_broker")
-    cli(obj={})
+    logger = logging.getLogger("circum_service")
+    cli()

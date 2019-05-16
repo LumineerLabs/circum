@@ -2,7 +2,7 @@ from circum.utils.state.tracking import TrackedObject, ObjectTracker
 
 class SimpleTracker(ObjectTracker):
     def __init__(self, *args, **kwargs):
-        self.__base__.__init__(*args, **kwargs)
+        super(SimpleTracker, self).__init__(self, *args, **kwargs)
 
     def _track(self, objects: [TrackedObject]):
         now = datetime.now()

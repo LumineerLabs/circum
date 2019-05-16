@@ -43,7 +43,7 @@ def _update_thread(update_interval: float):
                 obj["pos"] += obj["vel"]
 
         # track
-        tracking_info["tracked"] = [{"x": obj.pos[0], "y": obj.pos[1], "z": obj.pos[2]} for obj in object_state.get_objects()]
+        tracking_info["tracked"] = [{"x": obj["pos"][0], "y": obj["pos"][1], "z": obj["pos"][2]} for obj in vector_info]
 
         tracking_semaphore.release()
         time.sleep(update_interval)
@@ -69,4 +69,4 @@ def simulator(ctx, update_interval: float):
     tracker_thread = Thread(target = _update_thread, args = [update_interval])
     tracker_thread.daemon = True
     tracker_thread.start()
-    circum.endpoint.start_endpoint(ctx, run_simulator)
+    circum.endpoint.start_endpoint(ctx, "simulator", run_simulator)
