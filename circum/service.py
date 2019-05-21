@@ -18,7 +18,6 @@ from threading import Semaphore
 
 
 logger = logging.getLogger(__name__)
-
 size_fmt = "!i"
 size_data_len = struct.calcsize(size_fmt)
 tracking_state = SimpleTracker()
@@ -30,23 +29,27 @@ class MyListener:
         self.endpoints = endpoints
 
     def remove_service(self, zeroconf, type_, name):
-        print("Endpoint %s removed" % (name,))
-        sockets.pop(name).close()
+        logger.debug("Endpoint {} removed".format(name))
+        self.sockets.pop(name).close()
 
     def add_service(self, zeroconf, type_, name):
         info = zeroconf.get_service_info(type_, name)
         if len(self.endpoints) > 0:
             if name not in self.endpoints:
-                print("Name doesn't match skipping %s, service info: %s" % (name, info))
+                logger.debug("Name doesn't match skipping {}, service info: {}".format(name, info))
                 return
-        print("Endpoint %s added, service info: %s" % (name, info))
+        logger.debug("Endpoint {} added, service info: {}".format(name, info))
         if name not in self.sockets.keys():
             try:
-                endpoint_socket = socket.socket((str(IPv4Address(info.address), info.port)))
+                address = str(IPv4Address(info.address))
+                logger.debug("connecting to ({}, {})".format(address, info.port))
+                endpoint_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                endpoint_socket.connect((address, info.port))
                 _set_keepalive(endpoint_socket)
                 self.sockets[name] = endpoint_socket
+                logger.debug("connected")
             except Exception:
-                pass
+                logger.warn("unable to create socket", exc_info=True)
 
     def remove(self, service_socket: socket.socket):
         for k, s in self.sockets.iteritems():
@@ -59,12 +62,13 @@ class MyListener:
 
 
 def _update(update: {}, clients: [socket.socket]):
-    people = [TrackedObject(np.ndarray([person["x"], person["y"], person["z"]])) for person in update["people"]]
+    people = [TrackedObject(np.asarray([person["x"], person["y"], person["z"]])) for person in update["people"]]
     tracking_state.update(people)
     tracked = tracking_state.get_objects()
     update_dict = {
-        "people", [{"x": person.pos[0], "y": person.pos[1], "z": person.pos[2], "id": person.id} for person in tracked]
+        "people": [{"x": person.pos[0], "y": person.pos[1], "z": person.pos[2], "id": person.id} for person in tracked]
     }
+    logger.debug("update: {}".format(update_dict))
     bson_data = bson.dumps(update_dict)
     length = len(bson_data)
     size_data = struct.pack(size_fmt, length)
@@ -100,11 +104,11 @@ def _run_service(server_socket: socket.socket, listener: ServiceBrowser):
                 clients.append(conn)
                 semaphore.release()
             elif ready_socket in endpoint_sockets:
-                size_data = ready_socket.read(size_data_len)
-                size = struct.unpack(size_fmt, size_data)
-                data = ready_socket.read(size)
+                size_data = ready_socket.recv(size_data_len)
+                size = struct.unpack(size_fmt, size_data)[0]
+                data = ready_socket.recv(size)
                 update_data = bson.loads(data)
-                _update(update_data)
+                _update(update_data, clients)
         for excepted_socket in excepted:
             if excepted_socket != server_socket:
                 listener.remove(excepted_socket)
@@ -114,6 +118,7 @@ def _start_service(name: str, interface: str, port: int, listener: ServiceBrowse
     
     ip = _get_interface_ip(interface)
 
+    logger.debug("opening server on ({},{})".format(ip, port))
     server_socket = _open_server(ip, port)
 
     zeroconf, info = _advertise_server(name, "service", ip, port)
@@ -150,6 +155,8 @@ def _start_service(name: str, interface: str, port: int, listener: ServiceBrowse
               help='Names of endpoints to connect to. Can be specified multiple times. ' + 
                    'If no endpoints are specified, all available endpoints will be used.')
 def cli(name: str, interface: str, port: int, endpoint: [str]):
+    logging.basicConfig(level="DEBUG")
+    logger = logging.getLogger("circum_service")
     zeroconf = Zeroconf()
     endpoint_type = "_endpoint._sub._circum._tcp.local."
     listener = MyListener([name + "." + endpoint_type for name in endpoint])
@@ -161,6 +168,4 @@ def cli(name: str, interface: str, port: int, endpoint: [str]):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level="DEBUG")
-    logger = logging.getLogger("circum_service")
     cli()

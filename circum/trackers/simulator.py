@@ -1,6 +1,7 @@
 import click
 import circum.endpoint
 import copy
+import logging
 import numpy as np
 import random
 import time
@@ -9,18 +10,21 @@ from threading import Semaphore, Thread
 from socket import socket
 
 
+logger = logging.getLogger(__name__)
 tracking_semaphore = None
 tracking_info = {"people": []}
 vector_info = []
+updated = False
 
 
 def _update_thread(update_interval: float):
     global tracking_info
     global vector_info
+    global updated
 
     while True:
         tracking_semaphore.acquire()
-        if len(tracking_info["people"]) == 0:
+        if len(vector_info) == 0:
             for i in range(1 + int(random.random() * 4)):
                 # position
                 x = random.random() * 10
@@ -34,6 +38,8 @@ def _update_thread(update_interval: float):
                 vel = np.array([dx, dy, 0])
                 mag = random.random() * 2
                 vel = mag * vel / np.linalg.norm(vel)
+
+                vector_info.append({"pos": pos, "vel": vel})
         else:
             # update
             for obj in vector_info:
@@ -43,15 +49,21 @@ def _update_thread(update_interval: float):
                 obj["pos"] += obj["vel"]
 
         # track
-        tracking_info["tracked"] = [{"x": obj["pos"][0], "y": obj["pos"][1], "z": obj["pos"][2]} for obj in vector_info]
+        tracking_info["people"] = [{"x": obj["pos"][0], "y": obj["pos"][1], "z": obj["pos"][2]} for obj in vector_info]
+        updated = True
+        logger.debug("simulator update: {}".format(tracking_info))
 
         tracking_semaphore.release()
         time.sleep(update_interval)
 
 
 def run_simulator(simulator_args: {}) -> {}:
+    global updated
+    ret = None
     tracking_semaphore.acquire()
-    ret = copy.deepcopy(tracking_info)
+    if updated:
+        ret = copy.deepcopy(tracking_info)
+        updated = False
     tracking_semaphore.release()
     return ret
 
