@@ -51,7 +51,6 @@ def _update_thread(update_interval: float):
         # track
         tracking_info["people"] = [{"x": obj["pos"][0], "y": obj["pos"][1], "z": obj["pos"][2]} for obj in vector_info]
         updated = True
-        logger.debug("simulator update: {}".format(tracking_info))
 
         tracking_semaphore.release()
         time.sleep(update_interval)

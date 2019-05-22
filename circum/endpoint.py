@@ -35,7 +35,6 @@ def _endpoint_thread(endpoint_func: Callable, clients: [socket.socket], semaphor
             to_remove = []
             for client in clients:
                 try:
-                    logger.debug("sending update: {}".format(tracking_info))
                     client.sendall(data)
                 except Exception:
                     logger.debug("transmit failure", exc_info=True)

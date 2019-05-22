@@ -30,7 +30,6 @@ def _update(update: {}, clients: [socket.socket]):
     update_dict = {
         "people": [{"x": person.pos[0], "y": person.pos[1], "z": person.pos[2], "id": person.id} for person in tracked]
     }
-    logger.debug("update: {}".format(update_dict))
     bson_data = bson.dumps(update_dict)
     length = len(bson_data)
     size_data = struct.pack(size_fmt, length)
