@@ -83,3 +83,40 @@ def _set_keepalive(sock: socket.socket, interval=1, retries=5):
         sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPINTVL, interval)
         sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPCNT, retries)
     # we'll leave the defaults on other os's
+
+class ServiceListener:
+    def __init__(self, services: [str]):
+        self.sockets = {}
+        self.services = services
+
+    def remove_service(self, zeroconf, type_, name):
+        logger.debug("Service {} removed".format(name))
+        self.sockets.pop(name).close()
+
+    def add_service(self, zeroconf, type_, name):
+        info = zeroconf.get_service_info(type_, name)
+        if len(self.services) > 0:
+            if name not in self.services:
+                logger.debug("Name doesn't match skipping {}, service info: {}".format(name, info))
+                return
+        logger.debug("Service {} added, service info: {}".format(name, info))
+        if name not in self.sockets.keys():
+            try:
+                address = str(IPv4Address(info.address))
+                logger.debug("connecting to ({}, {})".format(address, info.port))
+                service_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                service_socket.connect((address, info.port))
+                _set_keepalive(service_socket)
+                self.sockets[name] = service_socket
+                logger.debug("connected")
+            except Exception:
+                logger.warn("unable to create socket", exc_info=True)
+
+    def remove(self, service_socket: socket.socket):
+        for k, s in self.sockets.iteritems():
+            if s == service_socket:
+                sockets.pop(k).close()
+                return
+
+    def get_sockets(self):
+        return list(self.sockets.values())
