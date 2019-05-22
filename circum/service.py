@@ -24,7 +24,7 @@ tracking_state = SimpleTracker()
 
 
 def _update(update: {}, clients: [socket.socket]):
-    people = [TrackedObject(np.asarray([person["x"], person["y"], person["z"]])) for person in update["people"]]
+    people = [TrackedObject(np.asarray([person["x"], person["y"], person["z"]])) for person in update]
     tracking_state.update(people)
     tracked = tracking_state.get_objects()
     update_dict = {
@@ -53,8 +53,14 @@ def _run_service(server_socket: socket.socket, listener: ServiceBrowser):
     clients = []
     endpoint_sockets = []
 
+    last_update = {}
+
     while True:
         endpoint_sockets = listener.get_sockets()
+
+        removed_endpoints = set(last_update.keys()) - set(endpoint_sockets)
+        for removed_endpoint in removed_endpoints:
+            last_update.pop(removed_endpoint)
 
         # service the sockets
         ready, _, excepted = select.select([server_socket] + endpoint_sockets, [], [], 1)
@@ -70,7 +76,8 @@ def _run_service(server_socket: socket.socket, listener: ServiceBrowser):
                 size = struct.unpack(size_fmt, size_data)[0]
                 data = ready_socket.recv(size)
                 update_data = bson.loads(data)
-                _update(update_data, clients)
+                last_update[ready_socket] = update_data["people"]
+                _update([person for update in last_update.values() for person in update], clients)
         for excepted_socket in excepted:
             if excepted_socket != server_socket:
                 listener.remove(excepted_socket)
