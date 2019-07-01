@@ -3,58 +3,72 @@ import socket
 import sys
 
 from ipaddress import IPv4Address, AddressValueError
-from zeroconf import Zeroconf, ServiceInfo
+from zeroconf import Zeroconf, ServiceInfo, get_all_addresses
 
 
 logger = logging.getLogger(__name__)
 
 
-def _advertise_server(name: str, type: str, ip: str, port: int, properties=b""):
+def _advertise_server(name: str, type: str, ips: [str], port: int, properties=b"") -> (Zeroconf, [ServiceInfo]):
     desc = properties
 
     service_type = "_{}._sub._circum._tcp.local.".format(type)
     service_name = "{}.{}".format(name, service_type)
 
-    logger.debug("registering {} at {}:{}".format(service_name, ip, port))
-
-    info = ServiceInfo(service_type,
-                       service_name,
-                       socket.inet_aton(ip), port, 0, 0,
-                       desc)
-
     zeroconf = Zeroconf()
-    print("Registered service, press Ctrl-C to exit...")
+    infos = []
+
+    logger.debug("registering {} at {}:{}".format(service_name, ips, port))
+    info = ServiceInfo(service_type,
+                        service_name,
+                        [socket.inet_aton(ip) for ip in ips], port, 0, 0,
+                        desc)
     zeroconf.register_service(info)
+    infos.append(info)
 
-    return zeroconf, info
-
-
-def _open_server(ip: str, port: int) -> socket.socket:
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((ip, port))
-    s.listen()
-    return s
+    print("Registered service, press Ctrl-C to exit...")
+    return zeroconf, infos
 
 
-def _get_interface_ip(interface: str) -> str:
+def _open_server(ips: [str], port: int) -> [socket.socket]:
+    sockets = []
+    for ip in ips:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.bind((ip, port))
+            s.listen()
+            sockets.append(s)
+        except Exception:
+            # not all ips on all interfaces will be bindable
+            logger.warning("Unable to bind to address: {}".format(ip))
+    return sockets
+
+
+def _get_interface_ip(interface: str) -> [str]:
     if interface is None:
-        # INADDR_ANY
-        return "0.0.0.0"
+        return get_all_addresses()
 
     # check if the interface was passed as an IP
     try:
         IPv4Address(interface)
-        return interface
+        return [interface]
     except AddressValueError:
         pass
 
     # pyzeroconf only supports ipv4 so limit to that
-    ipv4s = [ip.ip for ip in ifaddr.get_adapters()[interface].ips if isinistance(ip.ip, str)]
+    ipv4s = list(
+        set(
+            addr.ip
+            for iface in ifaddr.get_adapters()
+            for addr in iface.ips
+            if addr.is_IPv4 and iface.nice_name == interface and addr.network_prefix != 32  # Host only netmask 255.255.255.255
+        )
+    )
 
     if len(ipv4s) == 0:
         raise Exception("unable to find an ipv4 address for interface")
 
-    return ipv4s[0]
+    return ipv4s
 
 
 def _set_keepalive(sock: socket.socket, interval=1, retries=5):
@@ -101,16 +115,18 @@ class ServiceListener:
                 return
         logger.debug("Service {} added, service info: {}".format(name, info))
         if name not in self.sockets.keys():
-            try:
-                address = str(IPv4Address(info.address))
-                logger.debug("connecting to ({}, {})".format(address, info.port))
-                service_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                service_socket.connect((address, info.port))
-                _set_keepalive(service_socket)
-                self.sockets[name] = service_socket
-                logger.debug("connected")
-            except Exception:
-                logger.warn("unable to create socket", exc_info=True)
+            addresses = [str(IPv4Address(address)) for address in info.addresses]
+            for address in addresses:
+                try:
+                    logger.debug("attempting to connects to ({}, {})".format(address, info.port))
+                    service_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    service_socket.connect((address, info.port))
+                    _set_keepalive(service_socket)
+                    self.sockets[name] = service_socket
+                    logger.debug("connected")
+                    break
+                except Exception:
+                    logger.warn("unable to create socket", exc_info=True)
 
     def remove(self, service_socket: socket.socket):
         for k, s in self.sockets.iteritems():

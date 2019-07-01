@@ -47,7 +47,7 @@ def _update(update: {}, clients: [socket.socket]):
         clients.remove(client)
 
 
-def _run_service(server_socket: socket.socket, listener: ServiceBrowser):
+def _run_service(server_sockets: [socket.socket], listener: ServiceBrowser):
     semaphore = Semaphore()
     clients = []
     endpoint_sockets = []
@@ -62,10 +62,10 @@ def _run_service(server_socket: socket.socket, listener: ServiceBrowser):
             last_update.pop(removed_endpoint)
 
         # service the sockets
-        ready, _, excepted = select.select([server_socket] + endpoint_sockets, [], [], 1)
+        ready, _, excepted = select.select(server_sockets + endpoint_sockets, [], [], 1)
         for ready_socket in ready:
-            if ready_socket == server_socket:
-                conn, _ = server_socket.accept()
+            if ready_socket in server_sockets:
+                conn, _ = ready_socket.accept()
                 _set_keepalive(conn)
                 semaphore.acquire()
                 clients.append(conn)
@@ -78,7 +78,7 @@ def _run_service(server_socket: socket.socket, listener: ServiceBrowser):
                 last_update[ready_socket] = update_data["people"]
                 _update([person for update in last_update.values() for person in update], clients)
         for excepted_socket in excepted:
-            if excepted_socket != server_socket:
+            if excepted_socket not in server_sockets:
                 listener.remove(excepted_socket)
 
 
@@ -87,16 +87,17 @@ def _start_service(name: str, interface: str, port: int, listener: ServiceBrowse
     ip = _get_interface_ip(interface)
 
     logger.debug("opening server on ({},{})".format(ip, port))
-    server_socket = _open_server(ip, port)
+    server_sockets = _open_server(ip, port)
 
-    zeroconf, info = _advertise_server(name, "service", ip, port)
+    zeroconf, infos = _advertise_server(name, "service", ip, port)
 
     try:
-        _run_service(server_socket, listener)
+        _run_service(server_sockets, listener)
     except Exception:
         logging.error("Exception while running server", exc_info=True)
     finally:
-        zeroconf.unregister_service(info)
+        for info in infos:
+            zeroconf.unregister_service(info)
         zeroconf.close()
 
 

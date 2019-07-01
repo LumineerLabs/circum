@@ -45,7 +45,7 @@ def _endpoint_thread(endpoint_func: Callable, clients: [socket.socket], semaphor
             semaphore.release()
 
 
-def _run_server(server_socket: socket.socket, reader, tracker_args):
+def _run_server(server_sockets: [socket.socket], reader, tracker_args):
     semaphore = Semaphore()
     clients = []
 
@@ -56,8 +56,8 @@ def _run_server(server_socket: socket.socket, reader, tracker_args):
 
     # listen for connections
     while True:
-        ready, _, _ = select([server_socket], [], [], 1)
-        if ready:
+        ready, _, _ = select(server_sockets, [], [], 1)
+        for server_socket in ready:
             conn, addr = server_socket.accept()
             logger.debug("client connected: {}".format(addr))
             _set_keepalive(conn)
@@ -68,19 +68,20 @@ def _run_server(server_socket: socket.socket, reader, tracker_args):
 
 def _start_endpoint(name: str, interface: str, port: int, tracker_type: str, tracker, tracker_args):
     
-    ip = _get_interface_ip(interface)
+    ips = _get_interface_ip(interface)
 
-    logger.debug("opening server on ({},{})".format(ip, port))
-    server_socket = _open_server(ip, port)
+    logger.debug("opening server on ({},{})".format(ips, port))
+    server_sockets = _open_server(ips, port)
 
-    zeroconf, info = _advertise_server(name, "endpoint", ip, port, {"type": tracker_type})
+    zeroconf, infos = _advertise_server(name, "endpoint", ips, port, {"type": tracker_type})
 
     try:
-        _run_server(server_socket, tracker, tracker_args)
+        _run_server(server_sockets, tracker, tracker_args)
     except Exception:
         logging.error("Exception while running server", exc_info=True)
     finally:
-        zeroconf.unregister_service(info)
+        for info in infos:
+            zeroconf.unregister_service(info)
         zeroconf.close()
 
 
