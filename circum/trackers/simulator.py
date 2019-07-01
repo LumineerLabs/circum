@@ -17,7 +17,7 @@ vector_info = []
 updated = False
 
 
-def _update_thread(update_interval: float):
+def _update_thread(update_interval: float, num_objects: int):
     global tracking_info
     global vector_info
     global updated
@@ -25,7 +25,9 @@ def _update_thread(update_interval: float):
     while True:
         tracking_semaphore.acquire()
         if len(vector_info) == 0:
-            for i in range(1 + int(random.random() * 4)):
+            if num_objects == 0:
+                num_objects = 1 + int(random.random() * 4)
+            for i in range(num_objects):
                 # position
                 x = random.random() * 10
                 y = random.random() * 10
@@ -73,11 +75,16 @@ def run_simulator(simulator_args: {}) -> {}:
               type=float,
               default=.5,
               help='Rate to send updates.')
+@click.option('--num_objects',
+              required=False,
+              type=int,
+              default=4,
+              help='Number of objects to simulate')
 @click.pass_context
-def simulator(ctx, update_interval: float):
+def simulator(ctx, update_interval: float, num_objects: int):
     global tracking_semaphore
     tracking_semaphore = Semaphore()
-    tracker_thread = Thread(target = _update_thread, args = [update_interval])
+    tracker_thread = Thread(target = _update_thread, args = [update_interval, num_objects])
     tracker_thread.daemon = True
     tracker_thread.start()
     circum.endpoint.start_endpoint(ctx, "simulator", run_simulator)
