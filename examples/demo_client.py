@@ -7,7 +7,7 @@ import time
 
 from circum.utils.network import ServiceListener
 from matplotlib import pyplot as plt
-from zeroconf import ServiceBrowser, Zeroconf
+from zeroconf import Zeroconf
 
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def _update(data: {}):
     axes.set_xlim([0, 10])
     axes.set_ylim([0, 10])
 
-    plt.plot(x,y,"bo", linestyle='None')
+    plt.plot(x, y, "bo", linestyle='None')
     for i, xy in enumerate(zip(x, y)):
         ax.annotate('{}'.format(ids[i]), xy=xy, textcoords='data')
 

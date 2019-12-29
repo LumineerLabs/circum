@@ -1,5 +1,7 @@
 # circum
 
+![build](https://travis-ci.com/LumineerLabs/circum.svg?branch=master)
+
 Circum is a distributed, multi sensor fusion system for detecting and tracking people. It applies techniques similar to systems developed for autonomous vehicles to detect and track moving objects (DATMO). Circum uses late fusion, meaning that detections are classified per sensor and then fused (associated and deduplicated) and tracked after. Because different sensors provide different capabilities (e.g. point vs volume detection), these properties will be combined in the final tracking output.
 
 Circum is intended for art installations wanting to use human presence as an input into an interactive installation.

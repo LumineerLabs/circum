@@ -1,5 +1,3 @@
-import math
-
 from circum.utils.state.kalman_tracker import KalmanTracker
 from circum.utils.state.tracking import TrackedObject
 import copy
@@ -7,10 +5,6 @@ import numpy as np
 import mock
 import datetime
 
-
-kalman_params = {
-
-}
 
 @mock.patch("circum.utils.state.tracking.ObjectTracker._now")
 @mock.patch("circum.utils.state.tracking.TrackedObject._now")

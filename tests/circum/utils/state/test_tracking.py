@@ -5,6 +5,7 @@ from collections import OrderedDict
 import copy
 import mock
 
+
 def test_TrackedObject_creation():
     time_thresh = timedelta(milliseconds=100)
     to = TrackedObject(np.array([0, 1, 2]))
