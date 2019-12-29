@@ -2,8 +2,9 @@ language: python
 sudo: required
 os:
   - linux
-  - osx
-  - windows
+# only linux supports the python versions we do
+#  - osx
+#  - windows
 python:
   - "3.5"
   - "3.6"
