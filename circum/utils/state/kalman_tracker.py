@@ -16,19 +16,16 @@ class KalmanContext:
         half_num_states = int(num_states/2)
         R = np.zeros([half_num_states, half_num_states])
         np.fill_diagonal(R, 0.01)
-        R = np.matrix(R)
 
         H = np.zeros((half_num_states, num_states))
         np.fill_diagonal(H, 1)
-        H = np.matrix(H)
 
         P_vals = [1 for i in range(half_num_states)] + [1000 for i in range(half_num_states)]
         P = np.zeros([num_states, num_states])
         np.fill_diagonal(P, P_vals)
-        P = np.matrix(P)
 
-        Q = np.matrix(np.zeros([num_states, num_states]))
-        F = np.matrix(np.eye(num_states))
+        Q = np.zeros([num_states, num_states])
+        F = np.eye(num_states)
 
         d = {
             'number_of_states': 6,
@@ -85,7 +82,7 @@ class KalmanTracker(ObjectTracker):
         for tracked_object in tracked_objects:
             tracked_object.tracking_ctx.kf.predict(now)
             tracked_object.pos =\
-                np.array(tracked_object.tracking_ctx.kf.get()[0, 0:int(tracked_object.tracking_ctx.kf.n / 2)])[0]
+                np.array(tracked_object.tracking_ctx.kf.get()[0, 0:int(tracked_object.tracking_ctx.kf.n / 2)])
 
     def _track(self, objects: [TrackedObject]) -> [TrackedObject]:
         # predict
@@ -103,6 +100,6 @@ class KalmanTracker(ObjectTracker):
         # predict/update
         for tracked, detection in associations:
             tracked.tracking_ctx.kf.update(detection.pos, now)
-            tracked.pos = np.array(tracked.tracking_ctx.kf.get()[0, 0:int(tracked.tracking_ctx.kf.n / 2)])[0]
+            tracked.pos = np.array(tracked.tracking_ctx.kf.get()[0, 0:int(tracked.tracking_ctx.kf.n / 2)])
 
         return unassociated_detections

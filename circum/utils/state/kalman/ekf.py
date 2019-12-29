@@ -47,8 +47,6 @@ class EKF:
 
         Q = np.concatenate((np.concatenate((ul, ur), axis=1), np.concatenate((ll, lr), axis=1)))
 
-        Q = np.matrix(Q)
-
         self.kalmanFilter.set_Q(Q)
 
     def predict(self, timestamp: datetime.datetime):
@@ -60,10 +58,10 @@ class EKF:
         self.kalmanFilter.predict()
 
     def update(self, data: np.ndarray, timestamp: datetime.datetime):
-        z = np.matrix(data).T
+        z = data.reshape(data.shape[0], 1)
         x = self.kalmanFilter.get_x()
 
-        Hx = self.H * x
+        Hx = self.H @ x
 
         self.kalmanFilter.update(z, self.H, Hx, self.R)
         self.timestamp = timestamp
@@ -74,7 +72,8 @@ class EKF:
 
     def start(self, data: np.ndarray, timestamp: datetime.datetime):
         self.timestamp = timestamp
-        x = np.matrix(np.concatenate((data, np.array([0, 0, 0])))).T
+        x = np.concatenate((data, np.array([0, 0, 0])))
+        x = x.reshape(x.shape[0], 1)
         self.kalmanFilter.start(x, self.P, self.F, self.Q)
         self.initialized = True
 
