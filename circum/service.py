@@ -11,7 +11,7 @@ import numpy as np
 
 from circum.utils.network import _advertise_server, _open_server, _set_keepalive, _get_interface_ip, ServiceListener
 from circum.utils.state.tracking import TrackedObject
-from circum.utils.state.simple import SimpleTracker
+from circum.utils.state.simple_tracker import SimpleTracker
 from ipaddress import IPv4Address
 from zeroconf import ServiceBrowser, Zeroconf, ServiceInfo
 from threading import Semaphore

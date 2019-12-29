@@ -1,4 +1,3 @@
-import datetime
 import logging
 import numpy as np
 import scipy.spatial.distance as dist
@@ -13,14 +12,14 @@ class SimpleTracker(ObjectTracker):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _track(self, objects: [TrackedObject]):
-        now = datetime.datetime.now()
+    def _track(self, objects: [TrackedObject]) -> [TrackedObject]:
+        now = self._now()
         tracked_objects = self.get_objects()
 
         if len(tracked_objects) == 0:
-            for obj in objects:
-                self._register(obj)
             return objects
+        elif len(objects) == 0:
+            return []
         else:
             object_ids = [obj.id for obj in tracked_objects]
             object_positions = [obj.pos for obj in tracked_objects]
@@ -40,6 +39,7 @@ class SimpleTracker(ObjectTracker):
 
                 id_ = object_ids[row]
                 self._objects[id_].pos = new_positions[col]
+                self._objects[id_].history.append(new_positions[col])
                 self._objects[id_].last_seen = now
 
                 # indicate that we have examined each of the row and

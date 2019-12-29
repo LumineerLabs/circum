@@ -6,7 +6,13 @@ setup(
     packages=find_packages(exclude=["tests"]),
     install_requires=[
         'zeroconf',
-        'click'
+        'click',
+        'numpy',
+        'scipy',
+        'pykalman',
+        'munkres',
+        'bson',
+        'mock'
         ],
     entry_points='''
         [console_scripts]
