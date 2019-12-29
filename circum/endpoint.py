@@ -2,7 +2,6 @@
 
 import bson
 import click
-import ifaddr
 import logging
 import socket
 import struct
@@ -10,7 +9,6 @@ import struct
 from select import select
 from threading import Semaphore, Thread
 from typing import Callable
-from zeroconf import ServiceInfo, Zeroconf
 from circum.utils.network import _advertise_server, _open_server, _get_interface_ip, _set_keepalive
 
 # endpoint types
@@ -50,7 +48,7 @@ def _run_server(server_sockets: [socket.socket], reader, tracker_args):
     clients = []
 
     # start thread
-    tracker_thread = Thread(target = _endpoint_thread, args = (reader, clients, semaphore, tracker_args))
+    tracker_thread = Thread(target=_endpoint_thread, args=(reader, clients, semaphore, tracker_args))
     tracker_thread.daemon = True
     tracker_thread.start()
 
@@ -67,7 +65,7 @@ def _run_server(server_sockets: [socket.socket], reader, tracker_args):
 
 
 def _start_endpoint(name: str, interface: str, port: int, tracker_type: str, tracker, tracker_args):
-    
+
     ips = _get_interface_ip(interface)
 
     logger.debug("opening server on ({},{})".format(ips, port))
@@ -104,6 +102,7 @@ def start_endpoint(ctx, tracker_type: str, tracker, tracker_args=None):
               help='The port to bind to.')
 @click.pass_context
 def cli(ctx, name: str, interface: str, port: int):
+    global logger
     logging.basicConfig(level="DEBUG")
     logger = logging.getLogger("circum_endpoint")
     ctx.ensure_object(dict)

@@ -1,10 +1,11 @@
 from circum.utils.state.kalman.kalmanfilter import KalmanFilter
-import numpy as np 
+import numpy as np
 import datetime
+
 
 class EKF:
     """
-    A class that gets sensor measurements from class DataPoint 
+    A class that gets sensor measurements from class DataPoint
     and predicts the next state of the system using an extended Kalman filter algorithm
     The state variables we are considering in this system are the position and velocity
     in x and y cartesian coordinates, in essence there are 4 variables we are tracking.
@@ -26,8 +27,6 @@ class EKF:
         dt2 = dt * dt
         dt3 = dt * dt2
         dt4 = dt * dt3
-        
-        # x, y = self.a
 
         ula = [dt4 * a_k / 4 for a_k in self.a]
         ura = [dt3 * a_k / 2 for a_k in self.a]
@@ -47,23 +46,9 @@ class EKF:
         np.fill_diagonal(lr, lra)
 
         Q = np.concatenate((np.concatenate((ul, ur), axis=1), np.concatenate((ll, lr), axis=1)))
-        
-        # r11 = dt4 * x / 4
-        # r13 = dt3 * x / 2
-        # r22 = dt4 * y / 4
-        # r24 = dt3 * y / 2
-        # r31 = dt3 * x / 2
-        # r33 = dt2 * x
-        # r42 = dt3 * y / 2
-        # r44 = dt2 * y
-        
-        # Q = np.matrix([[r11,   0, r13,   0],
-        #                [  0, r22,   0, r24],
-        #                [r31,   0, r33,   0],
-        #                [  0, r42,   0, r44]])
 
         Q = np.matrix(Q)
-        
+
         self.kalmanFilter.set_Q(Q)
 
     def predict(self, timestamp: datetime.datetime):
@@ -92,10 +77,9 @@ class EKF:
         x = np.matrix(np.concatenate((data, np.array([0, 0, 0])))).T
         self.kalmanFilter.start(x, self.P, self.F, self.Q)
         self.initialized = True
-        
+
     def process(self, data: (float, float), timestamp: int):
-        
-        if self.initialized: 
+        if self.initialized:
             self.update(data, timestamp)
         else:
             self.start(data, timestamp)

@@ -1,12 +1,12 @@
 # circum
 
-Circum is a distributed, multi sensor fusion system for detecting and tracking people. It applies techniques similar to systems developed for autonomous vehicles to detect and track moving objects (DATMO). Circum uses late fusion, meaning that detections are classified and tracked per sensor and then fused (associated and deduplicated) after. Because different sensors provide different capabilities (e.g. point vs volume detection), these properties will be combined in the final tracking output.
+Circum is a distributed, multi sensor fusion system for detecting and tracking people. It applies techniques similar to systems developed for autonomous vehicles to detect and track moving objects (DATMO). Circum uses late fusion, meaning that detections are classified per sensor and then fused (associated and deduplicated) and tracked after. Because different sensors provide different capabilities (e.g. point vs volume detection), these properties will be combined in the final tracking output.
 
 Circum is intended for art installations wanting to use human presence as an input into an interactive installation.
 
 ![architecture block diagram](./docs/architecture_block.png)
 
-## Core Service
+## Service
 
 The circum service can be started with unique name and either a list of endpoints to connect to or it will find and connect to all circum endpoints on a network. Once connected to the endpoints, it will use pose and field of view information from each endpoint to combine tracking data into a single view which it will then transmit to clients whenever updated.
 
@@ -47,6 +47,8 @@ The type of endpoint will be noted in the service properties
 | Walabot     |  walabot |
 | FLIR Camera |  flir    |
 | Kinect      |  kinect  |
+
+## Demo
 
 ## References
 Circum would not have been possible without the following references:

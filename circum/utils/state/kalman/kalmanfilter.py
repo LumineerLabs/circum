@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class KalmanFilter:
     """
       A class that predicts the next state of the system given sensor measurements
@@ -8,7 +9,7 @@ class KalmanFilter:
 
     def __init__(self, n):
         self.n = n
-        self.I = np.matrix(np.eye(n))
+        self.I = np.matrix(np.eye(n)) # noqa E741
         self.x = None
         self.P = None
         self.F = None

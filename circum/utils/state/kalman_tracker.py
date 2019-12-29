@@ -1,7 +1,3 @@
-from pykalman import KalmanFilter
-
-import datetime
-import datetime
 import logging
 import numpy as np
 import scipy.spatial.distance as dist
@@ -21,25 +17,15 @@ class KalmanContext:
         R = np.zeros([half_num_states, half_num_states])
         np.fill_diagonal(R, 0.01)
         R = np.matrix(R)
-        # [[0.01,    0,    0],
-        #  [   0, 0.01,    0],
-        #  [   0,    0, 0.01]])
-
 
         H = np.zeros((half_num_states, num_states))
         np.fill_diagonal(H, 1)
         H = np.matrix(H)
-            # [[1, 0, 0, 0],
-            #  [0, 1, 0, 0]])
 
         P_vals = [1 for i in range(half_num_states)] + [1000 for i in range(half_num_states)]
         P = np.zeros([num_states, num_states])
         np.fill_diagonal(P, P_vals)
         P = np.matrix(P)
-        # [[1, 0,    0,    0],
-        #  [0, 1,    0,    0],
-        #  [0, 0, 1000,    0],
-        #  [0, 0,    0, 1000]])
 
         Q = np.matrix(np.zeros([num_states, num_states]))
         F = np.matrix(np.eye(num_states))
@@ -47,10 +33,10 @@ class KalmanContext:
         d = {
             'number_of_states': 6,
             'initial_process_matrix': P,
-            'covariance_matrix': R, 
+            'covariance_matrix': R,
             'transition_matrix': H,
             'inital_state_transition_matrix': F,
-            'initial_noise_matrix': Q, 
+            'initial_noise_matrix': Q,
             'acceleration_noise': (5, 5, 5)
         }
 
@@ -61,7 +47,9 @@ class KalmanTracker(ObjectTracker):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _associate(self, detected: [TrackedObject], threshold: float = 10) -> ([(TrackedObject, TrackedObject)], [TrackedObject], [TrackedObject]):
+    def _associate(self,
+                   detected: [TrackedObject],
+                   threshold: float = 10) -> ([(TrackedObject, TrackedObject)], [TrackedObject], [TrackedObject]):
         tracked_objects = self.get_objects()
         object_positions = [obj.pos for obj in tracked_objects]
         new_positions = [obj.pos for obj in detected]
@@ -102,7 +90,7 @@ class KalmanTracker(ObjectTracker):
     def _track(self, objects: [TrackedObject]) -> [TrackedObject]:
         # predict
         self._predict()
-    
+
         associations, unassociated_detections, unassociated_tracked = self._associate(objects)
 
         now = self._now()

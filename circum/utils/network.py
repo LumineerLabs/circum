@@ -1,6 +1,7 @@
 import logging
 import socket
 import sys
+import ifaddr
 
 from ipaddress import IPv4Address, AddressValueError
 from zeroconf import Zeroconf, ServiceInfo, get_all_addresses
@@ -20,9 +21,9 @@ def _advertise_server(name: str, type: str, ips: [str], port: int, properties=b"
 
     logger.debug("registering {} at {}:{}".format(service_name, ips, port))
     info = ServiceInfo(service_type,
-                        service_name,
-                        [socket.inet_aton(ip) for ip in ips], port, 0, 0,
-                        desc)
+                       service_name,
+                       [socket.inet_aton(ip) for ip in ips], port, 0, 0,
+                       desc)
     zeroconf.register_service(info)
     infos.append(info)
 
@@ -61,7 +62,8 @@ def _get_interface_ip(interface: str) -> [str]:
             addr.ip
             for iface in ifaddr.get_adapters()
             for addr in iface.ips
-            if addr.is_IPv4 and iface.nice_name == interface and addr.network_prefix != 32  # Host only netmask 255.255.255.255
+            # Host only netmask 255.255.255.255
+            if addr.is_IPv4 and iface.nice_name == interface and addr.network_prefix != 32
         )
     )
 
@@ -98,6 +100,7 @@ def _set_keepalive(sock: socket.socket, interval=1, retries=5):
         sock.setsockopt(socket.IPPROTO_TCP, TCP_KEEPCNT, retries)
     # we'll leave the defaults on other os's
 
+
 class ServiceListener:
     def __init__(self, services: [str]):
         self.sockets = {}
@@ -131,7 +134,7 @@ class ServiceListener:
     def remove(self, service_socket: socket.socket):
         for k, s in self.sockets.iteritems():
             if s == service_socket:
-                sockets.pop(k).close()
+                self.sockets.pop(k).close()
                 return
 
     def get_sockets(self):

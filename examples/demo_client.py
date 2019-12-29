@@ -2,7 +2,6 @@ import bson
 import click
 import logging
 import select
-import socket
 import struct
 import time
 
@@ -27,11 +26,11 @@ def _update(data: {}):
     ax.cla()
 
     axes = plt.gca()
-    axes.set_xlim([0,10])
-    axes.set_ylim([0,10])
+    axes.set_xlim([0, 10])
+    axes.set_ylim([0, 10])
 
     plt.plot(x,y,"bo", linestyle='None')
-    for i, xy in enumerate(zip(x,y)):
+    for i, xy in enumerate(zip(x, y)):
         ax.annotate('{}'.format(ids[i]), xy=xy, textcoords='data')
 
     plt.grid()
@@ -70,12 +69,12 @@ def cli(service: str):
     global logger
     logging.basicConfig(level="DEBUG")
     logger = logging.getLogger("demo_client")
-    
+
     zeroconf = Zeroconf()
     endpoint_type = "_service._sub._circum._tcp.local."
     listener = ServiceListener([service + "." + endpoint_type])
-    browser = ServiceBrowser(zeroconf, endpoint_type, listener)
-    
+    # browser = ServiceBrowser(zeroconf, endpoint_type, listener)
+
     try:
         _start_client(listener)
     finally:

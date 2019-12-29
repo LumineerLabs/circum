@@ -1,7 +1,6 @@
 import logging
 import numpy as np
 
-from scipy.spatial import distance as dist
 from datetime import datetime
 from collections import OrderedDict
 

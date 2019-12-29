@@ -7,7 +7,6 @@ import random
 import time
 
 from threading import Semaphore, Thread
-from socket import socket
 
 
 logger = logging.getLogger(__name__)
@@ -84,7 +83,7 @@ def run_simulator(simulator_args: {}) -> {}:
 def simulator(ctx, update_interval: float, num_objects: int):
     global tracking_semaphore
     tracking_semaphore = Semaphore()
-    tracker_thread = Thread(target = _update_thread, args = [update_interval, num_objects])
+    tracker_thread = Thread(target=_update_thread, args=[update_interval, num_objects])
     tracker_thread.daemon = True
     tracker_thread.start()
     circum.endpoint.start_endpoint(ctx, "simulator", run_simulator)

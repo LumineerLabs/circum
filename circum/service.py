@@ -12,8 +12,7 @@ import numpy as np
 from circum.utils.network import _advertise_server, _open_server, _set_keepalive, _get_interface_ip, ServiceListener
 from circum.utils.state.tracking import TrackedObject
 from circum.utils.state.simple_tracker import SimpleTracker
-from ipaddress import IPv4Address
-from zeroconf import ServiceBrowser, Zeroconf, ServiceInfo
+from zeroconf import ServiceBrowser, Zeroconf
 from threading import Semaphore
 
 
@@ -83,7 +82,6 @@ def _run_service(server_sockets: [socket.socket], listener: ServiceBrowser):
 
 
 def _start_service(name: str, interface: str, port: int, listener: ServiceBrowser):
-    
     ip = _get_interface_ip(interface)
 
     logger.debug("opening server on ({},{})".format(ip, port))
@@ -121,7 +119,7 @@ def _start_service(name: str, interface: str, port: int, listener: ServiceBrowse
               '-e',
               multiple=True,
               type=str,
-              help='Names of endpoints to connect to. Can be specified multiple times. ' + 
+              help='Names of endpoints to connect to. Can be specified multiple times. ' +
                    'If no endpoints are specified, all available endpoints will be used.')
 def cli(name: str, interface: str, port: int, endpoint: [str]):
     global logger
@@ -130,7 +128,7 @@ def cli(name: str, interface: str, port: int, endpoint: [str]):
     zeroconf = Zeroconf()
     endpoint_type = "_endpoint._sub._circum._tcp.local."
     listener = ServiceListener([name + "." + endpoint_type for name in endpoint])
-    browser = ServiceBrowser(zeroconf, endpoint_type, listener)
+    # browser = ServiceBrowser(zeroconf, endpoint_type, listener)
     try:
         _start_service(name, interface, port, listener)
     finally:
