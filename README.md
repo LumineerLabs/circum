@@ -52,7 +52,16 @@ The type of endpoint will be noted in the service properties
 
 ## Demo
 
+After installing circum and downloading the git repo, run the following in separate terminals (you can substitute your own values for FOO, BAR, 8081, and 8082):
+
+```bash
+circum-endpoint --name FOO --port 8081 simulator
+circum-service --name BAR --port 8082
+python3 .\examples\demo_client.py --service BAR
+```
+
 ## References
+
 Circum would not have been possible without the following references:
 
 * R. Omar Chavez-Garcia. [Multiple Sensor Fusion for Detection, Classification and Tracking of MovingObjects in Driving Environments.](https://icave2.cse.buffalo.edu/resources/sensor-modeling/sensor%20fusion.pdf) Robotics \[cs.RO\]. Université de Grenoble, 2014. English. <tel-01082021>
