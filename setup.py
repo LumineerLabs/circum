@@ -12,7 +12,8 @@ setup(
         'pykalman',
         'munkres',
         'bson',
-        'mock'
+        'mock',
+        'matplotlib'
         ],
     entry_points='''
         [console_scripts]
