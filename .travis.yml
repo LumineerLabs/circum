@@ -1,5 +1,4 @@
 language: python
-sudo: required
 os:
   - linux
 # only linux supports the python versions we do
