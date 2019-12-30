@@ -12,7 +12,7 @@ from typing import Callable
 from circum.utils.network import _advertise_server, _open_server, _get_interface_ip, _set_keepalive
 
 # endpoint types
-from circum.trackers.simulator import simulator
+from circum.sensors.simulator import simulator
 
 
 logger = logging.getLogger(__name__)
