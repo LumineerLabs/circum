@@ -83,6 +83,7 @@ def run_simulator(simulator_args: {}) -> {}:
 def simulator(ctx, update_interval: float, num_objects: int):
     global tracking_semaphore
     tracking_semaphore = Semaphore()
+    logger.debug("simulating {} objects at {} Hz".format(num_objects, 1/update_interval))
     tracker_thread = Thread(target=_update_thread, args=[update_interval, num_objects])
     tracker_thread.daemon = True
     tracker_thread.start()
