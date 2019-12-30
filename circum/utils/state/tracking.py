@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import OrderedDict
 
 
@@ -53,13 +53,16 @@ class ObjectTracker:
         now = self._now()
         to_prune = []
         for obj in self._objects.values():
-            time_since_last_seen = (now - obj.last_seen).total_seconds()
-            time_since_created = (now - obj.created).total_seconds()
+            time_since_last_seen = (now - obj.last_seen) / timedelta(seconds=1)
+            time_since_created = (now - obj.created) / timedelta(seconds=1)
             if time_since_last_seen > self._deletion_threshold:
                 # delete if it has been too long since we've seen the object
+                logger.debug("pruning {} because it hasn't been seen in {} seconds".format(obj.id,
+                                                                                           time_since_last_seen))
                 to_prune.append(obj)
             elif time_since_created > self._deletion_threshold and time_since_last_seen / time_since_created > .6:
                 # delete if we haven't seen most its life
+                logger.debug("pruning {} because it hasn't been seen for the majority of its life".format(obj.id))
                 to_prune.append(obj)
 
         for obj in to_prune:

@@ -7,8 +7,7 @@ import time
 
 from circum.utils.network import ServiceListener
 from matplotlib import pyplot as plt
-from zeroconf import Zeroconf
-
+from zeroconf import Zeroconf, ServiceBrowser
 
 logger = logging.getLogger(__name__)
 size_fmt = "!i"
@@ -73,7 +72,7 @@ def cli(service: str):
     zeroconf = Zeroconf()
     endpoint_type = "_service._sub._circum._tcp.local."
     listener = ServiceListener([service + "." + endpoint_type])
-    # browser = ServiceBrowser(zeroconf, endpoint_type, listener)
+    browser = ServiceBrowser(zeroconf, endpoint_type, listener)  # noqa
 
     try:
         _start_client(listener)

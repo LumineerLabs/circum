@@ -100,6 +100,7 @@ class KalmanTracker(ObjectTracker):
         # predict/update
         for tracked, detection in associations:
             tracked.tracking_ctx.kf.update(detection.pos, now)
+            tracked.last_seen = now
             tracked.pos = np.array(tracked.tracking_ctx.kf.get()[0, 0:int(tracked.tracking_ctx.kf.n / 2)])
 
         return unassociated_detections

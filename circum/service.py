@@ -11,7 +11,7 @@ import numpy as np
 
 from circum.utils.network import _advertise_server, _open_server, _set_keepalive, _get_interface_ip, ServiceListener
 from circum.utils.state.tracking import TrackedObject
-from circum.utils.state.simple_tracker import SimpleTracker
+from circum.utils.state.kalman_tracker import KalmanTracker as Tracker
 from zeroconf import ServiceBrowser, Zeroconf
 from threading import Semaphore
 
@@ -19,7 +19,7 @@ from threading import Semaphore
 logger = logging.getLogger(__name__)
 size_fmt = "!i"
 size_data_len = struct.calcsize(size_fmt)
-tracking_state = SimpleTracker()
+tracking_state = Tracker()
 
 
 def _update(update: {}, clients: [socket.socket]):
@@ -46,10 +46,9 @@ def _update(update: {}, clients: [socket.socket]):
         clients.remove(client)
 
 
-def _run_service(server_sockets: [socket.socket], listener: ServiceBrowser):
+def _run_service(server_sockets: [socket.socket], listener: ServiceListener):
     semaphore = Semaphore()
     clients = []
-    endpoint_sockets = []
 
     last_update = {}
 
@@ -81,7 +80,7 @@ def _run_service(server_sockets: [socket.socket], listener: ServiceBrowser):
                 listener.remove(excepted_socket)
 
 
-def _start_service(name: str, interface: str, port: int, listener: ServiceBrowser):
+def _start_service(name: str, interface: str, port: int, listener: ServiceListener):
     ip = _get_interface_ip(interface)
 
     logger.debug("opening server on ({},{})".format(ip, port))
@@ -128,7 +127,7 @@ def cli(name: str, interface: str, port: int, endpoint: [str]):
     zeroconf = Zeroconf()
     endpoint_type = "_endpoint._sub._circum._tcp.local."
     listener = ServiceListener([name + "." + endpoint_type for name in endpoint])
-    # browser = ServiceBrowser(zeroconf, endpoint_type, listener)
+    browser = ServiceBrowser(zeroconf, endpoint_type, listener)  # noqa
     try:
         _start_service(name, interface, port, listener)
     finally:
