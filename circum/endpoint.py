@@ -23,7 +23,8 @@ logger = logging.getLogger(__name__)
 
 def _transform_tracks(tracking_info: {}, pose: [float]):
     if tracking_info and len(tracking_info["people"]) > 0:
-        positions = np.array([[float(obj["x"]), float(obj["y"]), float(obj["z"]), 1] for obj in tracking_info["people"]]).T
+        positions = np.array(
+            [[float(obj["x"]), float(obj["y"]), float(obj["z"]), 1] for obj in tracking_info["people"]]).T
         positions = transform_positions(positions, pose).T
 
         for obj, pos in zip(tracking_info["people"], positions):
@@ -107,7 +108,13 @@ def _start_endpoint(name: str, interface: str, port: int, pose: [float], tracker
 
 
 def start_endpoint(ctx, tracker_type: str, tracker, tracker_args=None):
-    _start_endpoint(ctx.obj["name"], ctx.obj["interface"], ctx.obj["port"], ctx.obj["pose"], tracker_type, tracker, tracker_args)
+    _start_endpoint(ctx.obj["name"],
+                    ctx.obj["interface"],
+                    ctx.obj["port"],
+                    ctx.obj["pose"],
+                    tracker_type,
+                    tracker,
+                    tracker_args)
 
 
 @click.group()
@@ -129,7 +136,8 @@ def start_endpoint(ctx, tracker_type: str, tracker, tracker_args=None):
               type=float,
               nargs=6,
               help='The pose of the sensor. Expressed in x y z yaw(Rx) pitch(Ry) roll(Rz) order.\n'
-                   'Units are meters and degrees. +Z is the direction of sensor view. X & Y follow the right hand rule.')
+                   'Units are meters and degrees.\n'
+                   ' +Z is the direction of sensor view. X & Y follow the right hand rule.')
 @click.pass_context
 def cli(ctx, name: str, interface: str, port: int, pose: [float]):
     global logger

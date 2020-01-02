@@ -20,15 +20,15 @@ def transform_positions(positions: np.ndarray, sensor_pose: [float]):
                    [0, sin(theta_x),  cos(theta_x), 0],
                    [0,     0,              0,       1]])
 
-    ry = np.array([[ cos(theta_y), 0, sin(theta_y), 0],
-                   [     0,        1,       0,      0],
+    ry = np.array([[cos(theta_y),  0, sin(theta_y), 0],
+                   [0,             1,       0,      0],
                    [-sin(theta_y), 0, cos(theta_y), 0],
-                   [     0,        0,       0,      1]])
+                   [0,             0,       0,      1]])
 
     rz = np.array([[cos(theta_z), -sin(theta_z), 0, 0],
                    [sin(theta_z),  cos(theta_z), 0, 0],
-                   [      0,             0,      1, 0],
-                   [      0,             0,      0, 1]])
+                   [0,                   0,      1, 0],
+                   [0,                   0,      0, 1]])
 
     # first rotate around the sensor's angles, these use the sensor location as the origin
     # then, translate, setting the positions' origin to the system's origin

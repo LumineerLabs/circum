@@ -16,10 +16,10 @@ def test_rotate_x():
                             [0],
                             [0]])
 
-    expected = np.array([[ 0,  0,  0],
-                         [ 0, -1, -1],
-                         [ 1,  0,  1],
-                         [ 1,  1,  1]])
+    expected = np.array([[0,  0,  0],
+                         [0, -1, -1],
+                         [1,  0,  1],
+                         [1,  1,  1]])
 
     transformed = circum.utils.math.transform_positions(positions, sensor_pose)
 
@@ -39,10 +39,10 @@ def test_rotate_y():
                             [90],
                             [0]])
 
-    expected = np.array([[  0, 1,  1],
-                         [  0, 0,  0],
-                         [ -1, 0, -1],
-                         [  1, 1,  1]])
+    expected = np.array([[0,  1,  1],
+                         [0,  0,  0],
+                         [-1, 0, -1],
+                         [1,  1,  1]])
 
     transformed = circum.utils.math.transform_positions(positions, sensor_pose)
 
@@ -62,10 +62,10 @@ def test_rotate_z():
                             [0],
                             [90]])
 
-    expected = np.array([[ 0, -1, -1],
-                         [ 1,  0,  1],
-                         [ 0,  0,  0],
-                         [ 1,  1,  1]])
+    expected = np.array([[0, -1, -1],
+                         [1,  0,  1],
+                         [0,  0,  0],
+                         [1,  1,  1]])
 
     transformed = circum.utils.math.transform_positions(positions, sensor_pose)
 
@@ -85,12 +85,11 @@ def test_rotate_translate():
                             [90],
                             [135]])
 
-    expected = np.array([[ 10,  9, 10,  9],
-                         [ 20, 20, 21, 21],
-                         [ 29, 30, 30, 29],
-                         [  1,  1,  1,  1]])
+    expected = np.array([[10,  9, 10,  9],
+                         [20, 20, 21, 21],
+                         [29, 30, 30, 29],
+                         [1,   1,  1,  1]])
 
     transformed = circum.utils.math.transform_positions(positions, sensor_pose)
 
     assert np.allclose(expected, transformed)
-
