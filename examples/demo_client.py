@@ -16,17 +16,32 @@ size_data_len = struct.calcsize(size_fmt)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
+xlim = [1,1]
+ylim = [1,1]
+
 
 def _update(data: {}):
+    global xlim
+    global ylim
+
     x = [person["x"] for person in data["people"]]
     y = [person["y"] for person in data["people"]]
     ids = [person["id"] for person in data["people"]]
 
+    if len(x) > 0:
+        minx = min(x)
+        maxx = max(x)
+        miny = min(y)
+        maxy = max(x)
+
+        ylim = [min(ylim[0], miny - abs(.1 * miny)), max(ylim[1], maxy + abs(.1 * maxy))]
+        xlim = [min(xlim[0], minx - abs(.1 * minx)), max(xlim[1], maxx + abs(.1 * maxx))]
+
     ax.cla()
 
     axes = plt.gca()
-    axes.set_xlim([0, 10])
-    axes.set_ylim([0, 10])
+    axes.set_xlim(xlim)
+    axes.set_ylim(ylim)
 
     plt.plot(x, y, "bo", linestyle='None')
     for i, xy in enumerate(zip(x, y)):

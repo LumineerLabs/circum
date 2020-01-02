@@ -33,16 +33,18 @@ def _advertise_server(name: str, type: str, ips: [str], port: int, properties=b"
 
 def _open_server(ips: [str], port: int) -> [socket.socket]:
     sockets = []
+    socket_ips = []
     for ip in ips:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.bind((ip, port))
             s.listen()
             sockets.append(s)
+            socket_ips.append(ip)
         except Exception:
             # not all ips on all interfaces will be bindable
             logger.warning("Unable to bind to address: {}".format(ip))
-    return sockets
+    return sockets, socket_ips
 
 
 def _get_interface_ip(interface: str) -> [str]:

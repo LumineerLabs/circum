@@ -69,24 +69,28 @@ def _run_service(server_sockets: [socket.socket], listener: ServiceListener):
                 clients.append(conn)
                 semaphore.release()
             elif ready_socket in endpoint_sockets:
-                size_data = ready_socket.recv(size_data_len)
-                size = struct.unpack(size_fmt, size_data)[0]
-                data = ready_socket.recv(size)
-                update_data = bson.loads(data)
-                last_update[ready_socket] = update_data["people"]
-                _update([person for update in last_update.values() for person in update], clients)
+                try:
+                    size_data = ready_socket.recv(size_data_len)
+                    size = struct.unpack(size_fmt, size_data)[0]
+                    data = ready_socket.recv(size)
+                    update_data = bson.loads(data)
+                    last_update[ready_socket] = update_data["people"]
+                    _update([person for update in last_update.values() for person in update], clients)
+                except OSError:
+                    if ready_socket not in excepted:
+                        excepted.append(ready_socket)
         for excepted_socket in excepted:
             if excepted_socket not in server_sockets:
                 listener.remove(excepted_socket)
 
 
 def _start_service(name: str, interface: str, port: int, listener: ServiceListener):
-    ip = _get_interface_ip(interface)
+    ips = _get_interface_ip(interface)
 
-    logger.debug("opening server on ({},{})".format(ip, port))
-    server_sockets = _open_server(ip, port)
+    logger.debug("opening server on ({},{})".format(ips, port))
+    server_sockets, ips = _open_server(ips, port)
 
-    zeroconf, infos = _advertise_server(name, "service", ip, port)
+    zeroconf, infos = _advertise_server(name, "service", ips, port)
 
     try:
         _run_service(server_sockets, listener)

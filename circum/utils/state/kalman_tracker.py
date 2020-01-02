@@ -54,7 +54,7 @@ class KalmanTracker(ObjectTracker):
             return [], detected, []
         if len(detected) == 0:
             return [], [], tracked_objects
-        distances = dist.cdist(np.asarray(new_positions), np.asarray(object_positions))
+        distances = dist.cdist(np.asarray(new_positions), np.asarray(object_positions)).tolist()
 
         m = Munkres()
         indexes = m.compute(distances)
