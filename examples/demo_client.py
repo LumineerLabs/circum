@@ -16,8 +16,8 @@ size_data_len = struct.calcsize(size_fmt)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-xlim = [1,1]
-ylim = [1,1]
+xlim = [1, 1]
+ylim = [1, 1]
 
 
 def _update(data: {}):
