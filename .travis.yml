@@ -1,24 +1,28 @@
 language: python
 os:
-  - linux
-# only linux supports the python versions we do
-#  - osx
-#  - windows
+- linux
 python:
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.8"
-# command to install dependencies
+- '3.5'
+- '3.6'
+- '3.7'
+- '3.8'
 before_install:
-  - pip install flake8
+- pip install flake8
 install:
-  - pip install .
+- pip install .
 stages:
-  - lint
-  - test
+- lint
+- test
 jobs:
   include:
-    - stage: lint
-      script: flake8 --max-line-length 120
+  - stage: lint
+    script: flake8 --max-line-length 120
 script: pytest
+deploy:
+  provider: pypi
+  user: "__token__"
+  password:
+    secure: QsLwGqxUluUfRaaUXXwDGmLcQSN8HqQTL4GHEfuhpfNnn53WMAW9J4CxwldClC7p3tGrJ/vOjXP0H8RaW6PPC+6bV80wbDmVvIQy7HrtBF8iueLRY3DokujBIDM67KF35LsBM2DN6pkVedy6IJdmF86S8WpJn4WNJJiqN/wgRv1Gfb6kXo/I0DvqqCkNFNfqY/iJr0jAOyaSt8/9OXWgpD5gcyIVCpu4UEe+vFMbiA7Wrh/1bIYn/EovB6VaZAb7vmIb8jTAtnEurGOBK873BE9p06W3Hwd9xfbpnq6Id43sK6R4x4ujGwu+xid3tuBqLz8y6cCE5AoIC+cOgCih91Jl+ppPCLaA+OjMyD9Dn1qtnFTOV7oYqDIrTGSq6MJjp+WvktrbPCW3FUhZ7EGsZUOHNlwVn9KE7oslC2lUL7M9RHV3szrPxd9ur/i2pg71Txvi2RWIVYkgth8ZAP/ME0zWf36inBmNditL9Ey7RA/U6JEcjqdO1poEWZo9qhs0OsEYATyT7pfCd/QysLhb/taqeIm+5NQSQOm6hgPzTwyDVLEaERw8WclEZoGk/+vFW/A2V4n3r3+4Mqj7rmtJIQXAnigaZvESjQkwsElO0EysF4g90F22w9CmHv9nypW9T7+kIPOLd5iFV53DN3sJD6DIlrl/+ggJz+hrg/Hw8Mk=
+  on:
+    tags: true
+  skip_existing: true

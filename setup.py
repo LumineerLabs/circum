@@ -2,7 +2,17 @@ from setuptools import setup, find_packages
 
 setup(
     name='circum',
-    version='0.1',
+    version='{tag}',
+    author="Lane Haury",
+    author_email="lane@lumineerlabs.com",
+    description= "Circum is a set of tools for detecting and tracking moving objects" +
+                 "via a variety of distributed sensors.",
+    url="https://github.com/LumineerLabs/circum",
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Operating System :: OS Independent',
+    ],
     packages=find_packages(exclude=["tests"]),
     install_requires=[
         'zeroconf',
@@ -13,15 +23,12 @@ setup(
         'munkres',
         'bson',
         'mock',
-        'matplotlib'
-        ],
+        'matplotlib',
+        'setuptools-git-version'
+    ],
     entry_points='''
         [console_scripts]
         circum-endpoint=circum.endpoint:cli
         circum-service=circum.service:cli
     ''',
-    author="Lane Haury",
-    author_email="lane@lumineerlabs.com",
-    description="",
-    url="https://github.com/LumineerLabs/circum",
 )
