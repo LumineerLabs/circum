@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='circum',
-    version='{tag}',
+    version_format='{tag}',
     author="Lane Haury",
     author_email="lane@lumineerlabs.com",
     description="Circum is a set of tools for detecting and tracking moving objects" +
