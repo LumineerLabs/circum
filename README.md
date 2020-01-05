@@ -1,6 +1,6 @@
 # circum
 
-![build](https://travis-ci.com/LumineerLabs/circum.svg?branch=master)
+![build](https://travis-ci.com/LumineerLabs/circum.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum) 
 
 Circum is a distributed, multi sensor fusion system for detecting and tracking people. It applies techniques similar to systems developed for autonomous vehicles to detect and track moving objects (DATMO). Circum uses late fusion, meaning that detections are classified per sensor and then fused (associated and deduplicated) and tracked after. Because different sensors provide different capabilities (e.g. point vs volume detection), these properties will be combined in the final tracking output.
 
@@ -22,7 +22,12 @@ The circum service will advertise itself via zeroconf service discovery. It will
 
 ## Endpoints
 
-Endpoints perform detection and classification and transmit information about the detected objects to the core service. At the very least, the endpoint must transmit a centroid of a detected person. The core service operates on this. Any additional information is added into the fused track for clients to consume. Each endpoint is exposed as a discoverable zeroconf service. A given tracker service is configured with a unique name and field of view information.
+Endpoints perform detection and classification and transmit information about the detected objects to the core service. 
+At the very least, the endpoint must transmit a centroid of a detected person. The core service operates on this. Any 
+additional information is added into the fused track for clients to consume. Each endpoint is exposed as a discoverable 
+zeroconf service. A given tracker service is configured with a unique name and field of view information.
+
+Circum is distributed with a simulator endpoint. Additional endpoint sensor types are installed via plugins.
 
 Supported trackers include:
 

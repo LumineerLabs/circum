@@ -35,9 +35,14 @@ setup(
         'matplotlib',
         'setuptools-git-version'
     ],
-    entry_points='''
-        [console_scripts]
-        circum-endpoint=circum.endpoint:cli
-        circum-service=circum.service:cli
-    ''',
+    entry_points={
+        'console_scripts': [
+            'circum-endpoint=circum.endpoint:cli',
+            'circum-service=circum.service:cli'
+        ],
+        'circum.plugins': [
+            'simulator=circum.sensors.simulator:simulator',
+            'walabot=circum.sensors.walabot:walabot'
+        ]
+    },
 )

@@ -3,6 +3,8 @@
 import bson
 import click
 import logging
+import numpy as np
+import pkg_resources
 import socket
 import struct
 
@@ -12,13 +14,9 @@ from typing import Callable
 from circum.utils.network import _advertise_server, _open_server, _get_interface_ip, _set_keepalive
 from circum.utils.math import transform_positions
 
-# endpoint types
-from circum.sensors.simulator import simulator
-from circum.sensors.walabot import walabot
-import numpy as np
-
 
 logger = logging.getLogger(__name__)
+circum_plugins = []
 
 
 def _transform_tracks(tracking_info: {}, pose: [float]):
@@ -143,6 +141,7 @@ def cli(ctx, name: str, interface: str, port: int, pose: [float]):
     global logger
     logging.basicConfig(level="DEBUG")
     logger = logging.getLogger("circum_endpoint")
+    logger.debug("Loaded Plugins: {}".format(circum_plugins))
     ctx.ensure_object(dict)
     ctx.obj["name"] = name
     ctx.obj["interface"] = interface
@@ -151,8 +150,9 @@ def cli(ctx, name: str, interface: str, port: int, pose: [float]):
 
 
 # register endpoints
-cli.add_command(simulator)
-cli.add_command(walabot)
+for entry_point in pkg_resources.iter_entry_points('circum.plugins'):
+    circum_plugins.append(entry_point.name)
+    cli.add_command(entry_point.load())
 
 
 if __name__ == "__main__":
