@@ -33,7 +33,7 @@ setup(
         'bson',
         'mock',
         'matplotlib',
-        'setuptools-git-version'
+        'setuptools-git-version',
     ],
     entry_points={
         'console_scripts': [
@@ -42,7 +42,6 @@ setup(
         ],
         'circum.plugins': [
             'simulator=circum.sensors.simulator:simulator',
-            'walabot=circum.sensors.walabot:walabot'
-        ]
+        ],
     },
 )
