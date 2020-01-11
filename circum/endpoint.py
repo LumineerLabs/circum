@@ -124,6 +124,7 @@ def start_endpoint(ctx, tracker_type: str, tracker, tracker_args=None):
                     tracker,
                     tracker_args)
 
+
 random_default_name = uuid.uuid1()
 
 
@@ -153,7 +154,7 @@ random_default_name = uuid.uuid1()
 @click.option('--pose-provider',
               required=False,
               default=None,
-              type=click.Choice(["foo", "bar", "foobar"]), # list(pose_providers.keys()), case_sensitive=False),
+              type=click.Choice(list(pose_providers.keys()), case_sensitive=False),
               help='The pose provider to use for automatically determining the sensor pose.\n'
                    'NOTE: this is currently unsupported')
 @click.pass_context
