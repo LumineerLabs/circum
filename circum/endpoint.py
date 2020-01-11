@@ -7,6 +7,7 @@ import numpy as np
 import pkg_resources
 import socket
 import struct
+import uuid
 
 from select import select
 from threading import Semaphore, Thread
@@ -16,16 +17,23 @@ from circum.utils.math import transform_positions
 
 
 logger = logging.getLogger(__name__)
-circum_plugins = []
+circum_sensors = []
+circum_pose_providers = {}
+
+
+# register sensors
+pose_providers = {entry_point.name: entry_point.load() for
+                  entry_point in
+                  pkg_resources.iter_entry_points('circum.pose_providers')}
 
 
 def _transform_tracks(tracking_info: {}, pose: [float]):
-    if tracking_info and len(tracking_info["people"]) > 0:
+    if tracking_info and len(tracking_info["objects"]) > 0:
         positions = np.array(
-            [[float(obj["x"]), float(obj["y"]), float(obj["z"]), 1] for obj in tracking_info["people"]]).T
+            [[float(obj["x"]), float(obj["y"]), float(obj["z"]), 1] for obj in tracking_info["objects"]]).T
         positions = transform_positions(positions, pose).T
 
-        for obj, pos in zip(tracking_info["people"], positions):
+        for obj, pos in zip(tracking_info["objects"], positions):
             obj["x"] = pos[0]
             obj["y"] = pos[1]
             obj["z"] = pos[2]
@@ -66,7 +74,9 @@ def _run_server(server_sockets: [socket.socket], reader, pose: [float], tracker_
     semaphore = Semaphore()
     clients = []
 
-    # start thread
+    # TODO: start pose provider thread
+
+    # start sensor thread
     tracker_thread = Thread(target=_endpoint_thread, args=(reader, clients, semaphore, pose, tracker_args))
     tracker_thread.daemon = True
     tracker_thread.start()
@@ -114,10 +124,13 @@ def start_endpoint(ctx, tracker_type: str, tracker, tracker_args=None):
                     tracker,
                     tracker_args)
 
+random_default_name = uuid.uuid1()
+
 
 @click.group()
 @click.option('--name',
-              required=True,
+              required=False,
+              default=str(random_default_name),
               help='The service name')
 @click.option('--interface',
               required=False,
@@ -130,28 +143,43 @@ def start_endpoint(ctx, tracker_type: str, tracker, tracker_args=None):
               help='The port to bind to.')
 @click.option('--pose',
               required=False,
-              default=[0, 0, 0, 0, 0, 0],
+              default=None,
               type=float,
               nargs=6,
               help='The pose of the sensor. Expressed in x y z yaw(Rx) pitch(Ry) roll(Rz) order.\n'
                    'Units are meters and degrees.\n'
-                   ' +Z is the direction of sensor view. X & Y follow the right hand rule.')
+                   ' +Z is the direction of sensor view. X & Y follow the right hand rule.\n'
+                   'If a pose provider is installed, this will override it.')
+@click.option('--pose-provider',
+              required=False,
+              default=None,
+              type=click.Choice(["foo", "bar", "foobar"]), # list(pose_providers.keys()), case_sensitive=False),
+              help='The pose provider to use for automatically determining the sensor pose.\n'
+                   'NOTE: this is currently unsupported')
 @click.pass_context
-def cli(ctx, name: str, interface: str, port: int, pose: [float]):
+def cli(ctx, name: str, interface: str, port: int, pose: [float], pose_provider: str):
     global logger
     logging.basicConfig(level="DEBUG")
     logger = logging.getLogger("circum_endpoint")
-    logger.debug("Loaded Plugins: {}".format(circum_plugins))
+    logger.debug("Loaded Plugins: {}".format(circum_sensors))
+
+    if pose and pose_provider:
+        raise Exception("--pose and --pose-provider cannot both be specified")
+
+    if pose is None and pose_provider is None:
+        pose = [0, 0, 0, 0, 0, 0]
+
     ctx.ensure_object(dict)
     ctx.obj["name"] = name
     ctx.obj["interface"] = interface
     ctx.obj["port"] = port
     ctx.obj["pose"] = pose
+    ctx.obj["pose_provider"] = pose_provider
 
 
-# register endpoints
-for entry_point in pkg_resources.iter_entry_points('circum.plugins'):
-    circum_plugins.append(entry_point.name)
+# register sensors
+for entry_point in pkg_resources.iter_entry_points('circum.sensors'):
+    circum_sensors.append(entry_point.name)
     cli.add_command(entry_point.load())
 
 

@@ -11,7 +11,7 @@ from threading import Semaphore, Thread
 
 logger = logging.getLogger(__name__)
 tracking_semaphore = None
-tracking_info = {"people": []}
+tracking_info = {"objects": []}
 vector_info = []
 updated = False
 
@@ -50,7 +50,7 @@ def _update_thread(update_interval: float, num_objects: int):
                 obj["pos"] += obj["vel"]
 
         # track
-        tracking_info["people"] = [{"x": obj["pos"][0], "y": obj["pos"][1], "z": obj["pos"][2]} for obj in vector_info]
+        tracking_info["objects"] = [{"x": obj["pos"][0], "y": obj["pos"][1], "z": obj["pos"][2]} for obj in vector_info]
         updated = True
 
         tracking_semaphore.release()

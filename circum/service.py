@@ -27,7 +27,7 @@ def _update(update: {}, clients: [socket.socket]):
     tracking_state.update(people)
     tracked = tracking_state.get_objects()
     update_dict = {
-        "people": [{"x": person.pos[0], "y": person.pos[1], "z": person.pos[2], "id": person.id} for person in tracked]
+        "objects": [{"x": person.pos[0], "y": person.pos[1], "z": person.pos[2], "id": person.id} for person in tracked]
     }
     bson_data = bson.dumps(update_dict)
     length = len(bson_data)
@@ -74,7 +74,7 @@ def _run_service(server_sockets: [socket.socket], listener: ServiceListener):
                     size = struct.unpack(size_fmt, size_data)[0]
                     data = ready_socket.recv(size)
                     update_data = bson.loads(data)
-                    last_update[ready_socket] = update_data["people"]
+                    last_update[ready_socket] = update_data["objects"]
                     _update([person for update in last_update.values() for person in update], clients)
                 except OSError:
                     if ready_socket not in excepted:

@@ -1,12 +1,75 @@
 # circum
 
-![build](https://travis-ci.com/LumineerLabs/circum.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum) 
+![build](https://travis-ci.com/LumineerLabs/circum.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum)
 
 Circum is a distributed, multi sensor fusion system for detecting and tracking people. It applies techniques similar to systems developed for autonomous vehicles to detect and track moving objects (DATMO). Circum uses late fusion, meaning that detections are classified per sensor and then fused (associated and deduplicated) and tracked after. Because different sensors provide different capabilities (e.g. point vs volume detection), these properties will be combined in the final tracking output.
 
 Circum is intended for art installations wanting to use human presence as an input into an interactive installation.
 
 ![architecture block diagram](./docs/architecture_block.png)
+
+## Install
+
+```bash
+pip3 install circum
+```
+
+## Usage
+
+### Service
+
+```bash
+Usage: circum [OPTIONS]
+
+Options:
+  -n, --name TEXT       The service name  [required]
+  -i, --interface TEXT  The interface to bind to.
+  -p, --port INTEGER    The port to bind to.
+  -e, --endpoint TEXT   Names of endpoints to connect to. Can be specified
+                        multiple times. If no endpoints are specified, all
+                        available endpoints will be used.
+  --help                Show this message and exit.
+```
+
+### endpoint
+
+```bash
+Usage: circum-endpoint [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --name TEXT         The service name
+  --interface TEXT    The interface to bind to.
+  --port INTEGER      The port to bind to.
+  --pose FLOAT...     The pose of the sensor. Expressed in x y z yaw(Rx)
+                      pitch(Ry) roll(Rz) order.
+                      Units are meters and degrees.
+                      +Z is the direction of sensor view. X & Y follow the
+                      right hand rule.
+                      If a pose provider is installed, this
+                      will override it.
+  --pose-provider [<available providers installed from plugins will be listed here>]
+                                  The pose provider to use for automatically
+                                  determining the sensor pose.
+                                  NOTE: this is
+                                  currently unsupported
+  --help                          Show this message and exit.
+
+
+Commands:
+  simulator
+  <additional sensors installed from plugins will be listed here>
+```
+
+To get the help for a particular sensor add --help after the appropriate command:
+```bash
+?> circum-endpiont simulator --help
+Usage: circum-endpoint simulator [OPTIONS]
+
+Options:
+  --update_interval FLOAT  Rate to send updates.
+  --num_objects INTEGER    Number of objects to simulate
+  --help                   Show this message and exit.
+```
 
 ## Service
 
@@ -22,22 +85,23 @@ The circum service will advertise itself via zeroconf service discovery. It will
 
 ## Endpoints
 
-Endpoints perform detection and classification and transmit information about the detected objects to the core service. 
-At the very least, the endpoint must transmit a centroid of a detected person. The core service operates on this. Any 
-additional information is added into the fused track for clients to consume. Each endpoint is exposed as a discoverable 
+Endpoints perform detection and classification and transmit information about the detected objects to the core service.
+At the very least, the endpoint must transmit a centroid of a detected person. The core service operates on this. Any
+additional information is added into the fused track for clients to consume. Each endpoint is exposed as a discoverable
 zeroconf service. A given tracker service is configured with a unique name and field of view information.
 
 Circum is distributed with a simulator endpoint. Additional endpoint sensor types are installed via plugins.
 
-Supported trackers include:
+Supported sensors include:
 
-* Walabot
+* [Walabot](https://github.com/LumineerLabs/circum-walabot) ![build](https://travis-ci.com/LumineerLabs/circum-walabot.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-walabot)
 
-Plans for future trackers include:
+Planned future sensors:
 
-* Camera
-* Kinect
-* FLIR Camera
+* [Camera + ML](https://github.com/LumineerLabs/circum-cam) ![build](https://travis-ci.com/LumineerLabs/circum-cam.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-cam)
+* [Kinect](https://github.com/LumineerLabs/circum-kinect) ![build](https://travis-ci.com/LumineerLabs/circum-kinect.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-kinect)
+* [IR Camera](https://github.com/LumineerLabs/circum-ir) ![build](https://travis-ci.com/LumineerLabs/circum-ir.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-ir)
+* [HC-S04 Ultrasound](https://github.com/LumineerLabs/circum-hc-s04) ![build](https://travis-ci.com/LumineerLabs/circum-hc-s04.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-hc-s04)
 
 ### Discovery
 

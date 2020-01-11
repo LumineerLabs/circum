@@ -24,9 +24,9 @@ def _update(data: {}):
     global xlim
     global ylim
 
-    x = [person["x"] for person in data["people"]]
-    y = [person["y"] for person in data["people"]]
-    ids = [person["id"] for person in data["people"]]
+    x = [person["x"] for person in data["objects"]]
+    y = [person["y"] for person in data["objects"]]
+    ids = [person["id"] for person in data["objects"]]
 
     if len(x) > 0:
         minx = min(x)

@@ -38,9 +38,9 @@ setup(
     entry_points={
         'console_scripts': [
             'circum-endpoint=circum.endpoint:cli',
-            'circum-service=circum.service:cli'
+            'circum=circum.service:cli'
         ],
-        'circum.plugins': [
+        'circum.sensors': [
             'simulator=circum.sensors.simulator:simulator',
         ],
     },
