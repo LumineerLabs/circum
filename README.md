@@ -101,7 +101,7 @@ Planned future sensors:
 * [Camera + ML](https://github.com/LumineerLabs/circum-cam) ![build](https://travis-ci.com/LumineerLabs/circum-cam.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-cam)
 * [Kinect](https://github.com/LumineerLabs/circum-kinect) ![build](https://travis-ci.com/LumineerLabs/circum-kinect.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-kinect)
 * [IR Camera](https://github.com/LumineerLabs/circum-ir) ![build](https://travis-ci.com/LumineerLabs/circum-ir.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-ir)
-* [HC-S04 Ultrasound](https://github.com/LumineerLabs/circum-hc-s04) ![build](https://travis-ci.com/LumineerLabs/circum-hc-s04.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-hc-s04)
+* [HC-S04 Ultrasound](https://github.com/LumineerLabs/circum-hc-sr04) ![build](https://travis-ci.com/LumineerLabs/circum-hc-sr04.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-hc-sr04)
 
 ### Discovery
 
