@@ -106,24 +106,24 @@ def _start_service(name: str, interface: str, port: int, listener: ServiceListen
 @click.option('--name',
               '-n',
               required=True,
-              help='The service name')
+              help='The service name. This must be provided.')
 @click.option('--interface',
               '-i',
               required=False,
               default=None,
-              help='The interface to bind to.')
+              help='The interface to bind to. Defaults to INADDR_ANY.')
 @click.option('--port',
               '-p',
               required=False,
               default=8300,
               type=int,
-              help='The port to bind to.')
+              help='The port to bind to. Defaults 8300.')
 @click.option('--endpoint',
               '-e',
               multiple=True,
               type=str,
               help='Names of endpoints to connect to. Can be specified multiple times. ' +
-                   'If no endpoints are specified, all available endpoints will be used.')
+                   'If no endpoints are specified, all discovered endpoints will be used.')
 def cli(name: str, interface: str, port: int, endpoint: [str]):
     global logger
     logging.basicConfig(level="DEBUG")
