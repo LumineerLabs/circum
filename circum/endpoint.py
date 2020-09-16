@@ -21,7 +21,7 @@ circum_sensors = []
 circum_pose_providers = {}
 
 
-# register sensors
+# register pose providers
 pose_providers = {entry_point.name: entry_point.load() for
                   entry_point in
                   pkg_resources.iter_entry_points('circum.pose_providers')}
@@ -74,7 +74,7 @@ def _run_server(server_sockets: [socket.socket], reader, pose: [float], tracker_
     semaphore = Semaphore()
     clients = []
 
-    # TODO: start pose provider thread
+    # TODO: connect to pose provider service
 
     # start sensor thread
     tracker_thread = Thread(target=_endpoint_thread, args=(reader, clients, semaphore, pose, tracker_args))
@@ -132,16 +132,16 @@ random_default_name = uuid.uuid1()
 @click.option('--name',
               required=False,
               default=str(random_default_name),
-              help='The service name')
+              help='The service name. Defaults to a random UUID.')
 @click.option('--interface',
               required=False,
               default=None,
-              help='The interface to bind to.')
+              help='The interface to bind to. Defaults to INADDR_ANY')
 @click.option('--port',
               required=False,
-              default=8300,
+              default=8301,
               type=int,
-              help='The port to bind to.')
+              help='The port to bind to. Defaults to 8301')
 @click.option('--pose',
               required=False,
               default=None,
@@ -150,12 +150,12 @@ random_default_name = uuid.uuid1()
               help='The pose of the sensor. Expressed in x y z yaw(Rx) pitch(Ry) roll(Rz) order.\n'
                    'Units are meters and degrees.\n'
                    ' +Z is the direction of sensor view. X & Y follow the right hand rule.\n'
-                   'If a pose provider is installed, this will override it.')
+                   'If a pose provider is installed, this will override it. Defaults to [0, 0, 0, 0, 0, 0]')
 @click.option('--pose-provider',
               required=False,
               default=None,
               type=click.Choice(list(pose_providers.keys()), case_sensitive=False),
-              help='The pose provider to use for automatically determining the sensor pose.\n'
+              help='The pose provider to use for automatically determining the sensor pose. Defaults to static pose.\n'
                    'NOTE: this is currently unsupported')
 @click.pass_context
 def cli(ctx, name: str, interface: str, port: int, pose: [float], pose_provider: str):
@@ -164,11 +164,11 @@ def cli(ctx, name: str, interface: str, port: int, pose: [float], pose_provider:
     logger = logging.getLogger("circum_endpoint")
     logger.debug("Loaded Plugins: {}".format(circum_sensors))
 
-    if pose and pose_provider:
+    if len(pose) > 0 and pose_provider:
         raise Exception("--pose and --pose-provider cannot both be specified")
 
-    if pose is None and pose_provider is None:
-        pose = [0, 0, 0, 0, 0, 0]
+    if len(pose) == 0 and pose_provider is None:
+        pose = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     ctx.ensure_object(dict)
     ctx.obj["name"] = name
