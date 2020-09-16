@@ -1,10 +1,13 @@
 import logging
-import numpy as np
-import scipy.spatial.distance as dist
 
-from circum.utils.state.tracking import TrackedObject, ObjectTracker
 from circum.utils.state.kalman.ekf import EKF
+from circum.utils.state.tracking import ObjectTracker, TrackedObject
+
 from munkres import Munkres
+
+import numpy as np
+
+import scipy.spatial.distance as dist
 
 
 logger = logging.getLogger(__name__)

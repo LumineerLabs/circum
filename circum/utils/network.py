@@ -1,25 +1,25 @@
 import logging
 import socket
 import sys
+from ipaddress import AddressValueError, IPv4Address
+
 import ifaddr
 
-from ipaddress import IPv4Address, AddressValueError
-from zeroconf import Zeroconf, ServiceInfo, get_all_addresses
-
+from zeroconf import ServiceInfo, Zeroconf, get_all_addresses
 
 logger = logging.getLogger(__name__)
 
 
-def _advertise_server(name: str, type: str, ips: [str], port: int, properties=b"") -> (Zeroconf, [ServiceInfo]):
+def _advertise_server(name: str, server_type: str, ips: [str], port: int, properties=b"") -> (Zeroconf, [ServiceInfo]):
     desc = properties
 
-    service_type = "_{}._sub._circum._tcp.local.".format(type)
-    service_name = "{}.{}".format(name, service_type)
+    service_type = f"_{server_type}._sub._circum._tcp.local."
+    service_name = f"{name}.{service_type}"
 
     zeroconf = Zeroconf()
     infos = []
 
-    logger.debug("registering {} at {}:{}".format(service_name, ips, port))
+    logger.debug(f"registering {service_name} at {ips}:{port}")
     info = ServiceInfo(service_type,
                        service_name,
                        [socket.inet_aton(ip) for ip in ips], port, 0, 0,
@@ -59,15 +59,13 @@ def _get_interface_ip(interface: str) -> [str]:
         pass
 
     # pyzeroconf only supports ipv4 so limit to that
-    ipv4s = list(
-        set(
-            addr.ip
-            for iface in ifaddr.get_adapters()
-            for addr in iface.ips
-            # Host only netmask 255.255.255.255
-            if addr.is_IPv4 and iface.nice_name == interface and addr.network_prefix != 32
-        )
-    )
+    ipv4s = list({
+        addr.ip
+        for iface in ifaddr.get_adapters()
+        for addr in iface.ips
+        # Host only netmask 255.255.255.255
+        if addr.is_IPv4 and iface.nice_name == interface and addr.network_prefix != 32
+    })
 
     if len(ipv4s) == 0:
         raise Exception("unable to find an ipv4 address for interface")

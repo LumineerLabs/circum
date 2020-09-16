@@ -1,19 +1,23 @@
 #!/bin/python3
 
-import bson
-import click
 import logging
-import numpy as np
-import pkg_resources
 import socket
 import struct
 import uuid
-
 from select import select
 from threading import Semaphore, Thread
 from typing import Callable
-from circum.utils.network import _advertise_server, _open_server, _get_interface_ip, _set_keepalive
+
+import bson
+
 from circum.utils.math import transform_positions
+from circum.utils.network import _advertise_server, _get_interface_ip, _open_server, _set_keepalive
+
+import click
+
+import numpy as np
+
+import pkg_resources
 
 
 logger = logging.getLogger(__name__)

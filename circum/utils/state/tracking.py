@@ -1,8 +1,8 @@
 import logging
-import numpy as np
-
-from datetime import datetime, timedelta
 from collections import OrderedDict
+from datetime import datetime, timedelta
+
+import numpy as np
 
 
 logger = logging.getLogger(__name__)
@@ -78,9 +78,9 @@ class ObjectTracker:
         return objects
 
     def _get_next_object_id(self) -> int:
-        id = self._next
+        _id = self._next
         self._next += 1
-        return id
+        return _id
 
     def _now(self) -> datetime:
         return datetime.now()

@@ -1,9 +1,12 @@
+import copy
+import datetime
+
 from circum.utils.state.kalman_tracker import KalmanTracker
 from circum.utils.state.tracking import TrackedObject
-import copy
-import numpy as np
+
 import mock
-import datetime
+
+import numpy as np
 
 
 @mock.patch("circum.utils.state.tracking.ObjectTracker._now")
@@ -252,7 +255,7 @@ def test_kalman_update_crossover_tricky(object_now, tracker_now):
 
     for obj in tracked_objects_final:
         index = index_map[obj.id]
-        assert np.all(abs(objects3[index].pos-obj.pos) < .001)
+        assert np.all(abs(objects3[index].pos - obj.pos) < .001)
 
 
 @mock.patch("circum.utils.state.tracking.ObjectTracker._now")
@@ -342,4 +345,4 @@ def test_kalman_update_predictive_tracking(object_now, tracker_now):
 
     for obj in tracked_objects_final:
         index = index_map[obj.id]
-        assert np.all(abs(objects3[index].pos-obj.pos) < .001)
+        assert np.all(abs(objects3[index].pos - obj.pos) < .001)

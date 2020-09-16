@@ -1,9 +1,12 @@
-from circum.utils.state.tracking import TrackedObject, ObjectTracker
-from datetime import datetime, timedelta
-import numpy as np
-from collections import OrderedDict
 import copy
+from collections import OrderedDict
+from datetime import datetime, timedelta
+
+from circum.utils.state.tracking import ObjectTracker, TrackedObject
+
 import mock
+
+import numpy as np
 
 
 def test_TrackedObject_creation():

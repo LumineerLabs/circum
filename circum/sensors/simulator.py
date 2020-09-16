@@ -1,11 +1,12 @@
-import click
 import copy
 import logging
-import numpy as np
 import random
 import time
-
 from threading import Semaphore, Thread
+
+import click
+
+import numpy as np
 
 
 logger = logging.getLogger(__name__)
@@ -24,20 +25,20 @@ def _update_thread(update_interval: float, num_objects: int):
         tracking_semaphore.acquire()
         if len(vector_info) == 0:
             if num_objects == 0:
-                num_objects = 1 + int(random.random() * 4)
-            for i in range(num_objects):
+                num_objects = 1 + int(random.random() * 4)  # noqa S311
+            for _ in range(num_objects):
                 # position
-                x = random.random() * 10
-                y = random.random() * 3
-                z = random.random() * 10
+                x = random.random() * 10  # noqa S311
+                y = random.random() * 3  # noqa S311
+                z = random.random() * 10  # noqa S311
                 pos = np.array([x, y, z])
 
                 # velocity
-                dx = random.random()
+                dx = random.random()  # noqa S311
                 dy = 0
-                dz = random.random()
+                dz = random.random()  # noqa S311
                 vel = np.array([dx, dy, dz])
-                mag = random.random() * 2
+                mag = random.random() * 2  # noqa S311
                 vel = mag * vel / np.linalg.norm(vel)
 
                 vector_info.append({"pos": pos, "vel": vel})

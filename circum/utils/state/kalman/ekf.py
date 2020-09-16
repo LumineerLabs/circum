@@ -1,6 +1,8 @@
-from circum.utils.state.kalman.kalmanfilter import KalmanFilter
-import numpy as np
 import datetime
+
+from circum.utils.state.kalman.kalmanfilter import KalmanFilter
+
+import numpy as np
 
 
 class EKF:

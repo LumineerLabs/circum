@@ -1,9 +1,12 @@
+import copy
+import datetime
+
 from circum.utils.state.simple_tracker import SimpleTracker
 from circum.utils.state.tracking import TrackedObject
-import copy
-import numpy as np
+
 import mock
-import datetime
+
+import numpy as np
 
 
 @mock.patch("circum.utils.state.tracking.ObjectTracker._now")

@@ -1,19 +1,21 @@
 #!/bin/python3
-
-import bson
-import click
 import logging
 import select
 import socket
 import struct
+from threading import Semaphore
+
+import bson
+
+from circum.utils.network import ServiceListener, _advertise_server, _get_interface_ip, _open_server, _set_keepalive
+from circum.utils.state.kalman_tracker import KalmanTracker as Tracker
+from circum.utils.state.tracking import TrackedObject
+
+import click
 
 import numpy as np
 
-from circum.utils.network import _advertise_server, _open_server, _set_keepalive, _get_interface_ip, ServiceListener
-from circum.utils.state.tracking import TrackedObject
-from circum.utils.state.kalman_tracker import KalmanTracker as Tracker
 from zeroconf import ServiceBrowser, Zeroconf
-from threading import Semaphore
 
 
 logger = logging.getLogger(__name__)

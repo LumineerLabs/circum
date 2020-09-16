@@ -1,8 +1,8 @@
 import math
-
-import numpy as np
 from math import cos
 from math import sin
+
+import numpy as np
 
 
 def transform_positions(positions: np.ndarray, sensor_pose: [float]):
