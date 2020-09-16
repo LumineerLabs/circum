@@ -25,20 +25,20 @@ def _update_thread(update_interval: float, num_objects: int):
         tracking_semaphore.acquire()
         if len(vector_info) == 0:
             if num_objects == 0:
-                num_objects = 1 + int(random.random() * 4)  # noqa S311
+                num_objects = 1 + int(random.random() * 4)  # noqa: S311
             for _ in range(num_objects):
                 # position
-                x = random.random() * 10  # noqa S311
-                y = random.random() * 3  # noqa S311
-                z = random.random() * 10  # noqa S311
+                x = random.random() * 10  # noqa: S311
+                y = random.random() * 3  # noqa: S311
+                z = random.random() * 10  # noqa: S311
                 pos = np.array([x, y, z])
 
                 # velocity
-                dx = random.random()  # noqa S311
+                dx = random.random()  # noqa: S311
                 dy = 0
-                dz = random.random()  # noqa S311
+                dz = random.random()  # noqa: S311
                 vel = np.array([dx, dy, dz])
-                mag = random.random() * 2  # noqa S311
+                mag = random.random() * 2  # noqa: S311
                 vel = mag * vel / np.linalg.norm(vel)
 
                 vector_info.append({"pos": pos, "vel": vel})

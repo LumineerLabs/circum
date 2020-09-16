@@ -11,7 +11,7 @@ class KalmanFilter:
 
     def __init__(self, n):
         self.n = n
-        self.I = np.eye(n)  # noqa E741
+        self.I = np.eye(n)  # noqa: E741
         self.x = None
         self.P = None
         self.F = None
