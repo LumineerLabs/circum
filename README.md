@@ -78,6 +78,13 @@ connect to all circum endpoints on a network. Once connected to the endpoints, i
 information from each endpoint to combine tracking data into a single view which it will then transmit to clients 
 whenever updated.
 
+### Coordinates
+
+Circum, by convention, uses a right handed coordinate system with y as the vertical axis and +y zenith pointing. Circum,
+itself, doesn't enforce or care about this, but, if a given application is deviating from this convention, it is 
+important to ensure that the endpoints are all using the same coordinate convention or the resulting tracks will be
+unusable.
+
 ### Discovery
 
 The circum service will advertise itself via zeroconf service discovery. It will advertise under
@@ -90,8 +97,8 @@ The circum service will advertise itself via zeroconf service discovery. It will
 
 Endpoints perform detection and classification and transmit information about the detected objects to the core service.
 At the very least, the endpoint must transmit a centroid of a detected person. The core service operates on this. Any
-additional information is added into the fused track for clients to consume. Each endpoint is exposed as a discoverable
-zeroconf service. A given tracker service is configured with a unique name and field of view information.
+additional information is added into the fused track for clients to consume. Each endpoint is configured with a unique 
+name. 
 
 ### Coordinates
 
@@ -99,6 +106,14 @@ Circum supports automatically updating tracked objects based on the pose of the 
 sensor coordinate system with +z extending out from the sensor, +y vertical, and +x horizontal when θ<sub>x</sub>, 
 θ<sub>y</sub>, and θ<sub>z</sub> are all 0. If the sensor has a different coordinate system, it mist be transformed to 
 this system first.
+
+### Discovery
+
+Each endpoint is exposed as a discoverable zeroconf service. They are advertised under
+
+```console
+<name>._endpoint._circum._tcp.local.
+```
 
 ### Sensors
 
@@ -125,11 +140,13 @@ The endpoints will advertise under
 
 The type of endpoint will be noted in the service properties
 
-|    Type     | Type Tag |
-|-------------|----------|
-| Walabot     |  walabot |
-| FLIR Camera |  flir    |
-| Kinect      |  kinect  |
+|    Type     | Type Tag  |
+|-------------|-----------|
+| Walabot     |  walabot  |
+| FLIR Camera |  flir     |
+| Kinect      |  kinect   |
+| Camera      |  cam      |
+| Simulator   | simulator |
 
 ## Demo
 
