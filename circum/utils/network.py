@@ -134,7 +134,7 @@ class ServiceListener:
                     logger.warn("unable to create socket", exc_info=True)
 
     def remove(self, service_socket: socket.socket):
-        for k, s in self.sockets.iteritems():
+        for k, s in self.sockets.items():
             if s == service_socket:
                 self.sockets.pop(k).close()
                 return
