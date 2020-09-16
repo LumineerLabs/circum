@@ -1,5 +1,4 @@
 import click
-import circum.endpoint
 import copy
 import logging
 import numpy as np
@@ -29,14 +28,15 @@ def _update_thread(update_interval: float, num_objects: int):
             for i in range(num_objects):
                 # position
                 x = random.random() * 10
-                y = random.random() * 10
-                z = random.random() * 3
+                y = random.random() * 3
+                z = random.random() * 10
                 pos = np.array([x, y, z])
 
                 # velocity
                 dx = random.random()
-                dy = random.random()
-                vel = np.array([dx, dy, 0])
+                dy = 0
+                dz = random.random()
+                vel = np.array([dx, dy, dz])
                 mag = random.random() * 2
                 vel = mag * vel / np.linalg.norm(vel)
 
@@ -81,6 +81,7 @@ def run_simulator(simulator_args: {}) -> {}:
               help='Number of objects to simulate')
 @click.pass_context
 def simulator(ctx, update_interval: float, num_objects: int):
+    import circum.endpoint
     global tracking_semaphore
     tracking_semaphore = Semaphore()
     logger.debug("simulating {} objects at {} Hz".format(num_objects, 1/update_interval))
