@@ -24,16 +24,23 @@ setup(
     ],
     packages=find_packages(exclude=["tests"]),
     install_requires=[
-        'zeroconf',
-        'click',
-        'numpy',
-        'scipy',
-        'pykalman',
-        'munkres',
         'bson',
-        'mock',
+        'click',
         'matplotlib',
+        'mock',
+        'munkres',
+        'numpy',
+        'pykalman',
+        'scipy',
+        'zeroconf==0.26.3',
+    ],
+    setup_requires=[
+        'setuptools',
         'setuptools-git-version',
+    ],
+    tests_require=[
+        'pytest',
+        'pytest-cov',
     ],
     entry_points={
         'console_scripts': [
