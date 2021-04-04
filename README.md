@@ -73,15 +73,15 @@ Options:
 
 ## Service
 
-The circum service can be started with unique name and either a list of endpoints to connect to or it will find and 
-connect to all circum endpoints on a network. Once connected to the endpoints, it will use pose and field of view 
-information from each endpoint to combine tracking data into a single view which it will then transmit to clients 
+The circum service can be started with unique name and either a list of endpoints to connect to or it will find and
+connect to all circum endpoints on a network. Once connected to the endpoints, it will use pose and field of view
+information from each endpoint to combine tracking data into a single view which it will then transmit to clients
 whenever updated.
 
 ### Coordinates
 
 Circum, by convention, uses a right handed coordinate system with y as the vertical axis and +y zenith pointing. Circum,
-itself, doesn't enforce or care about this, but, if a given application is deviating from this convention, it is 
+itself, doesn't enforce or care about this, but, if a given application is deviating from this convention, it is
 important to ensure that the endpoints are all using the same coordinate convention or the resulting tracks will be
 unusable.
 
@@ -97,14 +97,14 @@ The circum service will advertise itself via zeroconf service discovery. It will
 
 Endpoints perform detection and classification and transmit information about the detected objects to the core service.
 At the very least, the endpoint must transmit a centroid of a detected person. The core service operates on this. Any
-additional information is added into the fused track for clients to consume. Each endpoint is configured with a unique 
-name. 
+additional information is added into the fused track for clients to consume. Each endpoint is configured with a unique
+name.
 
 ### Coordinates
 
-Circum supports automatically updating tracked objects based on the pose of the sensor. This assumes a right handed 
-sensor coordinate system with +z extending out from the sensor, +y vertical, and +x horizontal when θ<sub>x</sub>, 
-θ<sub>y</sub>, and θ<sub>z</sub> are all 0. If the sensor has a different coordinate system, it mist be transformed to 
+Circum supports automatically updating tracked objects based on the pose of the sensor. This assumes a right handed
+sensor coordinate system with +z extending out from the sensor, +y vertical, and +x horizontal when θ<sub>x</sub>,
+θ<sub>y</sub>, and θ<sub>z</sub> are all 0. If the sensor has a different coordinate system, it mist be transformed to
 this system first.
 
 ### Discovery
@@ -119,16 +119,19 @@ Each endpoint is exposed as a discoverable zeroconf service. They are advertised
 
 Circum is distributed with a simulator endpoint. Additional endpoint sensor types are installed via plugins.
 
-Supported sensors include:
+Supported sensors:
 
 * [Walabot](https://github.com/LumineerLabs/circum-walabot) ![build](https://travis-ci.com/LumineerLabs/circum-walabot.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-walabot)
+* [HC-S04 Ultrasound](https://github.com/LumineerLabs/circum-hc-sr04) ![build](https://travis-ci.com/LumineerLabs/circum-hc-sr04.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-hc-sr04)
 
-Planned future sensors:
+Sensors in Development:
 
 * [Camera + ML](https://github.com/LumineerLabs/circum-cam) ![build](https://travis-ci.com/LumineerLabs/circum-cam.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-cam)
 * [Kinect](https://github.com/LumineerLabs/circum-kinect) ![build](https://travis-ci.com/LumineerLabs/circum-kinect.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-kinect)
+
+Planned sensors:
+
 * [IR Camera](https://github.com/LumineerLabs/circum-ir) ![build](https://travis-ci.com/LumineerLabs/circum-ir.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-ir)
-* [HC-S04 Ultrasound](https://github.com/LumineerLabs/circum-hc-sr04) ![build](https://travis-ci.com/LumineerLabs/circum-hc-sr04.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-hc-sr04)
 
 ### Discovery
 
