@@ -14,6 +14,7 @@ setup(
     author_email="lane@lumineerlabs.com",
     description="Circum is a set of tools for detecting and tracking moving objects" +
                 "via a variety of distributed sensors.",
+    license="MIT",
     long_description=long_description,
     long_description_content_type='text/markdown',
     url="https://github.com/LumineerLabs/circum",
