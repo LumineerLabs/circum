@@ -121,13 +121,13 @@ Circum is distributed with a simulator endpoint. Additional endpoint sensor type
 
 Supported sensors:
 
-* [Walabot](https://github.com/LumineerLabs/circum-walabot) ![build](https://travis-ci.com/LumineerLabs/circum-walabot.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-walabot)
 * [HC-S04 Ultrasound](https://github.com/LumineerLabs/circum-hc-sr04) ![build](https://travis-ci.com/LumineerLabs/circum-hc-sr04.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-hc-sr04)
+* [Kinect](https://github.com/LumineerLabs/circum-kinect) ![build](https://travis-ci.com/LumineerLabs/circum-kinect.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-kinect)
+* [Walabot](https://github.com/LumineerLabs/circum-walabot) ![build](https://travis-ci.com/LumineerLabs/circum-walabot.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-walabot)
 
 Sensors in Development:
 
 * [Camera + ML](https://github.com/LumineerLabs/circum-cam) ![build](https://travis-ci.com/LumineerLabs/circum-cam.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-cam)
-* [Kinect](https://github.com/LumineerLabs/circum-kinect) ![build](https://travis-ci.com/LumineerLabs/circum-kinect.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum-kinect)
 
 Planned sensors:
 
