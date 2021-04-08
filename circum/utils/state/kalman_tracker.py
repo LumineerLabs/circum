@@ -50,7 +50,11 @@ class KalmanTracker(ObjectTracker):
 
     def _associate(self,
                    detected: List[TrackedObject],
-                   threshold: float = 10) -> Tuple[List[Tuple[TrackedObject, TrackedObject]], List[TrackedObject], List[TrackedObject]]:
+                   threshold: float = 10) -> Tuple[
+                       List[Tuple[TrackedObject, TrackedObject]],
+                       List[TrackedObject],
+                       List[TrackedObject]
+                    ]:
         tracked_objects = self.get_objects()
         object_positions = [obj.pos for obj in tracked_objects]
         new_positions = [obj.pos for obj in detected]
