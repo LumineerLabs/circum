@@ -2,6 +2,7 @@ import logging
 import socket
 import sys
 from ipaddress import AddressValueError, IPv4Address
+from typing import List, Tuple
 
 import ifaddr
 
@@ -10,7 +11,11 @@ from zeroconf import ServiceInfo, Zeroconf, get_all_addresses
 logger = logging.getLogger(__name__)
 
 
-def _advertise_server(name: str, server_type: str, ips: [str], port: int, properties=b"") -> (Zeroconf, [ServiceInfo]):
+def _advertise_server(name: str,
+                      server_type: str,
+                      ips: List[str],
+                      port: int,
+                      properties=b"") -> Tuple[Zeroconf, List[ServiceInfo]]:
     desc = properties
 
     service_type = f"_{server_type}._sub._circum._tcp.local."
@@ -31,7 +36,8 @@ def _advertise_server(name: str, server_type: str, ips: [str], port: int, proper
     return zeroconf, infos
 
 
-def _open_server(ips: [str], port: int) -> [socket.socket]:
+def _open_server(ips: List[str],
+                 port: int) -> List[socket.socket]:
     sockets = []
     socket_ips = []
     for ip in ips:
@@ -47,7 +53,7 @@ def _open_server(ips: [str], port: int) -> [socket.socket]:
     return sockets, socket_ips
 
 
-def _get_interface_ip(interface: str) -> [str]:
+def _get_interface_ip(interface: str) -> List[str]:
     if interface is None:
         return get_all_addresses()
 
@@ -73,7 +79,9 @@ def _get_interface_ip(interface: str) -> [str]:
     return ipv4s
 
 
-def _set_keepalive(sock: socket.socket, interval=1, retries=5):
+def _set_keepalive(sock: socket.socket,
+                   interval=1,
+                   retries=5):
     platform = sys.platform
     if platform.startswith('linux'):
         # linux specific keepalive
@@ -102,7 +110,8 @@ def _set_keepalive(sock: socket.socket, interval=1, retries=5):
 
 
 class ServiceListener:
-    def __init__(self, services: [str]):
+    def __init__(self,
+                 services: List[str]):
         self.sockets = {}
         self.services = services
 

@@ -17,16 +17,22 @@ class KalmanFilter:
         self.F = None
         self.Q = None
 
-    def start(self, x: np.array, P: np.ndarray, F: np.ndarray, Q: np.ndarray):
+    def start(self,
+              x: np.array,
+              P: np.ndarray,
+              F: np.ndarray,
+              Q: np.ndarray):
         self.x = x
         self.P = P
         self.F = F
         self.Q = Q
 
-    def set_Q(self, Q: np.ndarray):
+    def set_Q(self,
+              Q: np.ndarray):
         self.Q = Q
 
-    def update_F(self, dt: float):
+    def update_F(self,
+                 dt: float):
         self.F[0, 3], self.F[1, 4], self.F[2, 5] = dt, dt, dt
 
     def get_x(self):
@@ -36,7 +42,11 @@ class KalmanFilter:
         self.x = self.F @ self.x
         self.P = self.F @ self.P @ self.F.T + self.Q
 
-    def update(self, z: np.ndarray, H: np.ndarray, Hx: np.ndarray, R: np.ndarray):
+    def update(self,
+               z: np.ndarray,
+               H: np.ndarray,
+               Hx: np.ndarray,
+               R: np.ndarray):
         y = z - Hx
         PHt = self.P @ H.T
         S = H @ PHt + R

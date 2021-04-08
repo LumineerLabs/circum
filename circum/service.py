@@ -4,6 +4,7 @@ import select
 import socket
 import struct
 from threading import Semaphore
+from typing import Dict, List
 
 import bson
 
@@ -24,7 +25,8 @@ size_data_len = struct.calcsize(size_fmt)
 tracking_state = Tracker()
 
 
-def _update(update: {}, clients: [socket.socket]):
+def _update(update: Dict,
+            clients: List[socket.socket]):
     people = [TrackedObject(np.asarray([person["x"], person["y"], person["z"]])) for person in update]
     tracking_state.update(people)
     tracked = tracking_state.get_objects()
@@ -48,7 +50,8 @@ def _update(update: {}, clients: [socket.socket]):
         clients.remove(client)
 
 
-def _run_service(server_sockets: [socket.socket], listener: ServiceListener):
+def _run_service(server_sockets: List[socket.socket],
+                 listener: ServiceListener):
     semaphore = Semaphore()
     clients = []
 
@@ -86,7 +89,10 @@ def _run_service(server_sockets: [socket.socket], listener: ServiceListener):
                 listener.remove(excepted_socket)
 
 
-def _start_service(name: str, interface: str, port: int, listener: ServiceListener):
+def _start_service(name: str,
+                   interface: str,
+                   port: int,
+                   listener: ServiceListener):
     ips = _get_interface_ip(interface)
 
     logger.debug("opening server on ({},{})".format(ips, port))
@@ -126,10 +132,19 @@ def _start_service(name: str, interface: str, port: int, listener: ServiceListen
               type=str,
               help='Names of endpoints to connect to. Can be specified multiple times. ' +
                    'If no endpoints are specified, all discovered endpoints will be used.')
-def cli(name: str, interface: str, port: int, endpoint: [str]):
+@click.option('--debug',
+              required=False,
+              default=False,
+              help='Print debug messages.')
+def cli(name: str,
+        interface: str,
+        port: int,
+        endpoint: List[str],
+        debug: bool):
     global logger
-    logging.basicConfig(level="DEBUG")
     logger = logging.getLogger("circum_service")
+    if debug:
+        logger.setLevel("DEBUG")
     zeroconf = Zeroconf()
     endpoint_type = "_endpoint._sub._circum._tcp.local."
     listener = ServiceListener([name + "." + endpoint_type for name in endpoint])

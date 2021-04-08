@@ -1,11 +1,12 @@
 import math
 from math import cos
 from math import sin
+from typing import List
 
 import numpy as np
 
 
-def transform_positions(positions: np.ndarray, sensor_pose: [float]):
+def transform_positions(positions: np.ndarray, sensor_pose: List[float]):
     translation_matrix = np.identity(4)
     translation_matrix[0][3] = sensor_pose[0]
     translation_matrix[1][3] = sensor_pose[1]

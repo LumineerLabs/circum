@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from circum.utils.state.tracking import ObjectTracker, TrackedObject
 
@@ -14,7 +15,8 @@ class SimpleTracker(ObjectTracker):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _track(self, objects: [TrackedObject]) -> [TrackedObject]:
+    def _track(self,
+               objects: List[TrackedObject]) -> List[TrackedObject]:
         now = self._now()
         tracked_objects = self.get_objects()
 

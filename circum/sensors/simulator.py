@@ -3,6 +3,7 @@ import logging
 import random
 import time
 from threading import Semaphore, Thread
+from typing import Dict
 
 import click
 
@@ -16,7 +17,8 @@ vector_info = []
 updated = False
 
 
-def _update_thread(update_interval: float, num_objects: int):
+def _update_thread(update_interval: float,
+                   num_objects: int):
     global tracking_info
     global vector_info
     global updated
@@ -58,7 +60,7 @@ def _update_thread(update_interval: float, num_objects: int):
         time.sleep(update_interval)
 
 
-def run_simulator(simulator_args: {}) -> {}:
+def run_simulator(simulator_args: Dict) -> Dict:
     global updated
     ret = None
     tracking_semaphore.acquire()
@@ -81,7 +83,9 @@ def run_simulator(simulator_args: {}) -> {}:
               default=4,
               help='Number of objects to simulate')
 @click.pass_context
-def simulator(ctx, update_interval: float, num_objects: int):
+def simulator(ctx,
+              update_interval: float,
+              num_objects: int):
     import circum.endpoint
     global tracking_semaphore
     tracking_semaphore = Semaphore()

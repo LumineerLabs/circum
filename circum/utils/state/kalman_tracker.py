@@ -1,4 +1,5 @@
 import logging
+from typing import List, Tuple
 
 from circum.utils.state.kalman.ekf import EKF
 from circum.utils.state.tracking import ObjectTracker, TrackedObject
@@ -48,8 +49,8 @@ class KalmanTracker(ObjectTracker):
         super().__init__(*args, **kwargs)
 
     def _associate(self,
-                   detected: [TrackedObject],
-                   threshold: float = 10) -> ([(TrackedObject, TrackedObject)], [TrackedObject], [TrackedObject]):
+                   detected: List[TrackedObject],
+                   threshold: float = 10) -> Tuple[List[Tuple[TrackedObject, TrackedObject]], List[TrackedObject], List[TrackedObject]]:
         tracked_objects = self.get_objects()
         object_positions = [obj.pos for obj in tracked_objects]
         new_positions = [obj.pos for obj in detected]
@@ -87,7 +88,8 @@ class KalmanTracker(ObjectTracker):
             tracked_object.pos =\
                 np.array(tracked_object.tracking_ctx.kf.get()[0, 0:int(tracked_object.tracking_ctx.kf.n / 2)])
 
-    def _track(self, objects: [TrackedObject]) -> [TrackedObject]:
+    def _track(self,
+               objects: List[TrackedObject]) -> List[TrackedObject]:
         # predict
         self._predict()
 

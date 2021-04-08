@@ -1,4 +1,5 @@
 import datetime
+from typing import Dict, Tuple
 
 from circum.utils.state.kalman.kalmanfilter import KalmanFilter
 
@@ -13,7 +14,8 @@ class EKF:
     in x and y cartesian coordinates, in essence there are 4 variables we are tracking.
     """
 
-    def __init__(self, d: {}):
+    def __init__(self,
+                 d: Dict):
         self.initialized = False
         self.timestamp = None
         self.n = d['number_of_states']
@@ -25,7 +27,8 @@ class EKF:
         self.a = d['acceleration_noise']
         self.kalmanFilter = KalmanFilter(self.n)
 
-    def updateQ(self, dt: int):
+    def updateQ(self,
+                dt: int):
         dt2 = dt * dt
         dt3 = dt * dt2
         dt4 = dt * dt3
@@ -51,7 +54,8 @@ class EKF:
 
         self.kalmanFilter.set_Q(Q)
 
-    def predict(self, timestamp: datetime.datetime):
+    def predict(self,
+                timestamp: datetime.datetime):
         dt = (timestamp - self.timestamp) / datetime.timedelta(seconds=1)
         self.timestamp = timestamp
 
@@ -59,7 +63,9 @@ class EKF:
         self.updateQ(dt)
         self.kalmanFilter.predict()
 
-    def update(self, data: np.ndarray, timestamp: datetime.datetime):
+    def update(self,
+               data: np.ndarray,
+               timestamp: datetime.datetime):
         z = data.reshape(data.shape[0], 1)
         x = self.kalmanFilter.get_x()
 
@@ -68,18 +74,24 @@ class EKF:
         self.kalmanFilter.update(z, self.H, Hx, self.R)
         self.timestamp = timestamp
 
-    def predict_update(self, data: np.ndarray, timestamp: datetime.datetime):
+    def predict_update(self,
+                       data: np.ndarray,
+                       timestamp: datetime.datetime):
         self.predict(timestamp)
         self.update(data, timestamp)
 
-    def start(self, data: np.ndarray, timestamp: datetime.datetime):
+    def start(self,
+              data: np.ndarray,
+              timestamp: datetime.datetime):
         self.timestamp = timestamp
         x = np.concatenate((data, np.array([0, 0, 0])))
         x = x.reshape(x.shape[0], 1)
         self.kalmanFilter.start(x, self.P, self.F, self.Q)
         self.initialized = True
 
-    def process(self, data: (float, float), timestamp: int):
+    def process(self,
+                data: Tuple[float, float],
+                timestamp: int):
         if self.initialized:
             self.update(data, timestamp)
         else:

@@ -6,7 +6,7 @@ import struct
 import uuid
 from select import select
 from threading import Semaphore, Thread
-from typing import Callable
+from typing import Callable, Dict, List
 
 import bson
 
@@ -31,7 +31,7 @@ pose_providers = {entry_point.name: entry_point.load() for
                   pkg_resources.iter_entry_points('circum.pose_providers')}
 
 
-def _transform_tracks(tracking_info: {}, pose: [float]):
+def _transform_tracks(tracking_info: Dict[str, float], pose: List[float]):
     if tracking_info and len(tracking_info["objects"]) > 0:
         positions = np.array(
             [[float(obj["x"]), float(obj["y"]), float(obj["z"]), 1] for obj in tracking_info["objects"]]).T
@@ -46,10 +46,10 @@ def _transform_tracks(tracking_info: {}, pose: [float]):
 
 
 def _endpoint_thread(endpoint_func: Callable,
-                     clients: [socket.socket],
+                     clients: List[socket.socket],
                      semaphore: Semaphore,
-                     pose: [float],
-                     tracker_args: {}):
+                     pose: List[float],
+                     tracker_args: Dict):
     while True:
         # update tracking info
         tracking_info = _transform_tracks(tracking_info=endpoint_func(tracker_args), pose=pose)
@@ -74,7 +74,10 @@ def _endpoint_thread(endpoint_func: Callable,
             semaphore.release()
 
 
-def _run_server(server_sockets: [socket.socket], reader, pose: [float], tracker_args):
+def _run_server(server_sockets: List[socket.socket],
+                reader,
+                pose: List[float],
+                tracker_args: Dict):
     semaphore = Semaphore()
     clients = []
 
@@ -97,7 +100,13 @@ def _run_server(server_sockets: [socket.socket], reader, pose: [float], tracker_
             semaphore.release()
 
 
-def _start_endpoint(name: str, interface: str, port: int, pose: [float], tracker_type: str, tracker, tracker_args):
+def _start_endpoint(name: str,
+                    interface: str,
+                    port: int,
+                    pose: List[float],
+                    tracker_type: str,
+                    tracker,
+                    tracker_args):
 
     ips = _get_interface_ip(interface)
 
@@ -119,7 +128,10 @@ def _start_endpoint(name: str, interface: str, port: int, pose: [float], tracker
         zeroconf.close()
 
 
-def start_endpoint(ctx, tracker_type: str, tracker, tracker_args=None):
+def start_endpoint(ctx,
+                   tracker_type: str,
+                   tracker,
+                   tracker_args=None):
     _start_endpoint(ctx.obj["name"],
                     ctx.obj["interface"],
                     ctx.obj["port"],
@@ -161,11 +173,25 @@ random_default_name = uuid.uuid1()
               type=click.Choice(list(pose_providers.keys()), case_sensitive=False),
               help='The pose provider to use for automatically determining the sensor pose. Defaults to static pose.\n'
                    'NOTE: this is currently unsupported')
+@click.option('--debug',
+              required=False,
+              default=False,
+              help='Print debug messages.')
 @click.pass_context
-def cli(ctx, name: str, interface: str, port: int, pose: [float], pose_provider: str):
+def cli(ctx,
+        name: str,
+        interface: str,
+        port: int,
+        pose: List[float],
+        pose_provider: str,
+        debug: bool):
+
     global logger
-    logging.basicConfig(level="DEBUG")
     logger = logging.getLogger("circum_endpoint")
+
+    if debug:
+        logger.setLevel("DEBUG")
+
     logger.debug("Loaded Plugins: {}".format(circum_sensors))
 
     if len(pose) > 0 and pose_provider:
