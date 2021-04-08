@@ -7,10 +7,16 @@ import time
 from threading import Semaphore, Thread
 
 from circum.utils.network import ServiceListener
+
 from matplotlib import pyplot as plt
 from matplotlib import animation
+
 from mpl_toolkits import mplot3d
+
+import numpy as np
+
 from zeroconf import Zeroconf, ServiceBrowser
+
 
 logger = logging.getLogger(__name__)
 size_fmt = "!i"
@@ -62,8 +68,7 @@ class RenderAnimation(animation.TimedAnimation):
         for text in subplt.texts:
             text.remove()
 
-        subplt.get_lines()[0].set_data(datax, datay)
-        subplt.get_lines()[0].set_3d_properties(dataz)
+        subplt.get_lines()[0].set_data_3d(datax, datay, dataz)
 
         for i, datum in enumerate(zip(datax, datay, dataz)):
             subplt.text(datum[0], datum[1], datum[2], f' {ids[i]}', size=10, zorder=1, color='k')
