@@ -5,6 +5,8 @@ import time
 from threading import Semaphore, Thread
 from typing import Dict
 
+import circum.endpoint
+
 import click
 
 import numpy as np
@@ -71,6 +73,18 @@ def run_simulator(simulator_args: Dict) -> Dict:
     return ret
 
 
+def _simulator(ctx,
+               update_interval: float,
+               num_objects: int):
+    global tracking_semaphore
+    tracking_semaphore = Semaphore()
+    logger.debug("simulating {} objects at {} Hz".format(num_objects, 1/update_interval))
+    tracker_thread = Thread(target=_update_thread, args=[update_interval, num_objects])
+    tracker_thread.daemon = True
+    tracker_thread.start()
+    circum.endpoint.start_endpoint(ctx, "simulator", run_simulator)
+
+
 @click.command()
 @click.option('--update_interval',
               required=False,
@@ -86,11 +100,6 @@ def run_simulator(simulator_args: Dict) -> Dict:
 def simulator(ctx,
               update_interval: float,
               num_objects: int):
-    import circum.endpoint
-    global tracking_semaphore
-    tracking_semaphore = Semaphore()
-    logger.debug("simulating {} objects at {} Hz".format(num_objects, 1/update_interval))
-    tracker_thread = Thread(target=_update_thread, args=[update_interval, num_objects])
-    tracker_thread.daemon = True
-    tracker_thread.start()
-    circum.endpoint.start_endpoint(ctx, "simulator", run_simulator)
+    _simulator(ctx,
+               update_interval,
+               num_objects)
