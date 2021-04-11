@@ -10,6 +10,7 @@ from typing import Callable, Dict, List
 
 import bson
 
+from circum.pose.provider import PoseProvider
 from circum.utils.math import transform_positions
 from circum.utils.network import _advertise_server, _get_interface_ip, _open_server, _set_keepalive
 
@@ -22,13 +23,7 @@ import pkg_resources
 
 logger = logging.getLogger(__name__)
 circum_sensors = []
-circum_pose_providers = {}
-
-
-# register pose providers
-pose_providers = {entry_point.name: entry_point.load() for
-                  entry_point in
-                  pkg_resources.iter_entry_points('circum.pose_providers')}
+circum_pose_providers = []
 
 
 def _transform_tracks(tracking_info: Dict[str, float], pose: List[float]):
@@ -48,11 +43,11 @@ def _transform_tracks(tracking_info: Dict[str, float], pose: List[float]):
 def _endpoint_thread(endpoint_func: Callable,
                      clients: List[socket.socket],
                      semaphore: Semaphore,
-                     pose: List[float],
+                     pose: PoseProvider,
                      tracker_args: Dict):
     while True:
         # update tracking info
-        tracking_info = _transform_tracks(tracking_info=endpoint_func(tracker_args), pose=pose)
+        tracking_info = _transform_tracks(tracking_info=endpoint_func(tracker_args), pose=pose.get_pose())
         if tracking_info is not None:
             bson_data = bson.dumps(tracking_info)
             size = len(bson_data)
@@ -76,7 +71,7 @@ def _endpoint_thread(endpoint_func: Callable,
 
 def _run_server(server_sockets: List[socket.socket],
                 reader,
-                pose: List[float],
+                pose: PoseProvider,
                 tracker_args: Dict):
     semaphore = Semaphore()
     clients = []
@@ -103,7 +98,7 @@ def _run_server(server_sockets: List[socket.socket],
 def _start_endpoint(name: str,
                     interface: str,
                     port: int,
-                    pose: List[float],
+                    pose: PoseProvider,
                     tracker_type: str,
                     tracker,
                     tracker_args):
@@ -132,10 +127,13 @@ def start_endpoint(ctx,
                    tracker_type: str,
                    tracker,
                    tracker_args=None):
+    if "pose_provider" not in ctx.obj:
+        logger.error("No pose provider specified, please specify a pose provider before the sensor command.")
+        exit(1)
     _start_endpoint(ctx.obj["name"],
                     ctx.obj["interface"],
                     ctx.obj["port"],
-                    ctx.obj["pose"],
+                    ctx.obj["pose_provider"],
                     tracker_type,
                     tracker,
                     tracker_args)
@@ -144,7 +142,7 @@ def start_endpoint(ctx,
 random_default_name = uuid.uuid1()
 
 
-@click.group()
+@click.group(chain=True)
 @click.option('--name',
               required=False,
               default=str(random_default_name),
@@ -158,22 +156,8 @@ random_default_name = uuid.uuid1()
               default=8301,
               type=int,
               help='The port to bind to. Defaults to 8301')
-@click.option('--pose',
-              required=False,
-              default=None,
-              type=float,
-              nargs=6,
-              help='The pose of the sensor. Expressed in x y z yaw(Rx) pitch(Ry) roll(Rz) order.\n'
-                   'Units are meters and degrees.\n'
-                   ' +Z is the direction of sensor view. X & Y follow the right hand rule.\n'
-                   'If a pose provider is installed, this will override it. Defaults to [0, 0, 0, 0, 0, 0]')
-@click.option('--pose-provider',
-              required=False,
-              default=None,
-              type=click.Choice(list(pose_providers.keys()), case_sensitive=False),
-              help='The pose provider to use for automatically determining the sensor pose. Defaults to static pose.\n'
-                   'NOTE: this is currently unsupported')
 @click.option('--debug',
+              is_flag=True,
               required=False,
               default=False,
               help='Print debug messages.')
@@ -182,36 +166,44 @@ def cli(ctx,
         name: str,
         interface: str,
         port: int,
-        pose: List[float],
-        pose_provider: str,
         debug: bool):
+    """
+    Start a circum endpoint service. To use, specify a pose provider and
+    then a sensor type. Only one pose provider and sensor type may be used:
 
-    global logger
-    logger = logging.getLogger("circum_endpoint")
+    circum-endpoint [service options] pose-provider-command [pose options] sensor-command [sensor options]
+    """
 
     if debug:
         logger.setLevel("DEBUG")
 
-    logger.debug("Loaded Plugins: {}".format(circum_sensors))
-
-    if len(pose) > 0 and pose_provider:
-        raise Exception("--pose and --pose-provider cannot both be specified")
-
-    if len(pose) == 0 and pose_provider is None:
-        pose = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    logger.debug(f"Loaded Pose Provider Plugins: {circum_pose_providers}")
+    logger.debug(f"Loaded Sensor Plugins: {circum_sensors}")
 
     ctx.ensure_object(dict)
     ctx.obj["name"] = name
     ctx.obj["interface"] = interface
     ctx.obj["port"] = port
-    ctx.obj["pose"] = pose
-    ctx.obj["pose_provider"] = pose_provider
+    ctx.obj["debug"] = debug
 
+
+# register pose_providers
+for entry_point in pkg_resources.iter_entry_points('circum.pose_providers'):
+    try:
+        circum_pose_providers.append(entry_point.name)
+        cli.add_command(entry_point.load())
+    except Exception as e:
+        logger.warning(f"Unable to load pose provider {entry_point.name}", exc_info=e)
+        continue
 
 # register sensors
 for entry_point in pkg_resources.iter_entry_points('circum.sensors'):
-    circum_sensors.append(entry_point.name)
-    cli.add_command(entry_point.load())
+    try:
+        circum_sensors.append(entry_point.name)
+        cli.add_command(entry_point.load())
+    except Exception as e:
+        logger.warning(f"Unable to load sensor {entry_point.name}", exc_info=e)
+        continue
 
 
 if __name__ == "__main__":

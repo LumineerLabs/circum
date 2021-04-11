@@ -51,6 +51,9 @@ setup(
         'circum.sensors': [
             'simulator=circum.sensors.simulator:simulator',
         ],
+        'circum.pose_providers': [
+            'static_pose=circum.pose.static:static_pose',
+        ],
     },
     extras_require={
         'lint': [

@@ -107,6 +107,19 @@ sensor coordinate system with +z extending out from the sensor, +y vertical, and
 θ<sub>y</sub>, and θ<sub>z</sub> are all 0. If the sensor has a different coordinate system, it mist be transformed to
 this system first.
 
+#### Pose Providers
+
+Circum endpoints determine their pose via a pose provider. Circum ships with a default pose provider, the static pose provider, that just take a set of x, y, z offsets and  yaw, pitch, roll rotations that are used to convert sensor space measurements to global space.
+
+Supported pose providers:
+
+* [Static](https://github.com/LumineerLabs/circum/circum/pose/static.py) ![build](https://travis-ci.com/LumineerLabs/circum.svg?branch=master) ![PyPI](https://img.shields.io/pypi/v/circum)
+
+Pose providers in development:
+
+* [GPS + IMU](https://github.com/LumineerLabs/circum-pose-gps-imu) - A pose provider that interfaces with various GPS chipsets and various IMU chipsets to provide pose in a geocentric coordinates.
+* [BeepBeep + IMU](https://github.com/LumineerLabs/circum-pose-beepbeep-imu) - A self organizing pose provider that uses the BeepBeep cooperative ranging algorithm and the KickLoc cooperative localization algorithm and various IMU chipsets to provide pose in a local, relative coordinates.
+
 ### Discovery
 
 Each endpoint is exposed as a discoverable zeroconf service. They are advertised under
