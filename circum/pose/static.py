@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import List
 
 from circum.pose.provider import PoseProvider
 
@@ -11,12 +11,12 @@ logger = logging.getLogger(__name__)
 
 class StaticPoseProvider(PoseProvider):
     def __init__(self,
-                 x: float=0,
-                 y: float=0,
-                 z: float=0,
-                 yaw: float=0,
-                 pitch: float=0,
-                 roll: float=0):
+                 x: float = 0,
+                 y: float = 0,
+                 z: float = 0,
+                 yaw: float = 0,
+                 pitch: float = 0,
+                 roll: float = 0):
         self.x = x
         self.y = y
         self.z = z
@@ -33,6 +33,7 @@ class StaticPoseProvider(PoseProvider):
             self.pitch,
             self.roll
         ]
+
 
 @click.command()
 @click.option('--pose',
